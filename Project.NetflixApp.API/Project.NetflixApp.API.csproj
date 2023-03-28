@@ -8,4 +8,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Project.NetflixApp.Business\Project.NetflixApp.Business.csproj" />
+    <ProjectReference Include="..\Project.NetflixApp.Common\Project.NetflixApp.Common.csproj" />
+  </ItemGroup>
+
 </Project>
