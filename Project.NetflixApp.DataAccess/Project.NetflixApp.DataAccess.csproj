@@ -17,4 +17,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Project.NetflixApp.Entities\Project.NetflixApp.Entities.csproj" />
+  </ItemGroup>
+
 </Project>

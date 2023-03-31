@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace Project.NetflixApp.Entities
 {
-    public class Type
+    public class TypeEntity
     {
         public int Id { get; set; }
         public string Description { get; set; }
+
+        public List<Production> Productions { get; set; }
     }
 }

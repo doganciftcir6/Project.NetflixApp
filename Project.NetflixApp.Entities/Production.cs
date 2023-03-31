@@ -15,11 +15,10 @@ namespace Project.NetflixApp.Entities
         public string ReleaseYear { get; set; }
         public DateTime CreateDate { get; set; }
 
-        //category
-        public List<Category> Categories { get; set; }
+
         //type
-        public int TypeId { get; set; }
-        public Type Type { get; set; }
+        public int TypeEntityId { get; set; }
+        public TypeEntity TypeEntity { get; set; }
         //Country
         public int CountryId { get; set; }
         public Country Country { get; set; }
