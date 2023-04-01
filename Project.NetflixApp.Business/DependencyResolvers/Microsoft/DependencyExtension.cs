@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Project.NetflixApp.Business.Mapping.AutoMapper;
 using Project.NetflixApp.DataAccess.Contexts.EntityFramework;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.DataAccess.Repositories.Concrete;
@@ -34,6 +36,26 @@ namespace Project.NetflixApp.Business.DependencyResolvers.Microsoft
             services.AddScoped<ITypeEntityRepository, TypeEntityRepository>();
             services.AddScoped<IUserOperationClaimRepository, UserOperationClaimRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+
+            //automapper
+            var mapperConfiguration = new MapperConfiguration(opt =>
+            {
+                opt.AddProfile(new CategoryProfile());
+                opt.AddProfile(new CountryProfile());
+                opt.AddProfile(new DuractionProfile());
+                opt.AddProfile(new GenderProfile());
+                opt.AddProfile(new OperationClaimProfile());
+                opt.AddProfile(new ProductionCategoryProfile());
+                opt.AddProfile(new ProductionCommentProfile());
+                opt.AddProfile(new ProductionProfile());
+                opt.AddProfile(new RatingProfile());
+                opt.AddProfile(new TypeEntityProfile());
+                opt.AddProfile(new UserOperationClaimProfile());
+                opt.AddProfile(new UserProfile());
+            });
+            //automapperı projeye kaydet.
+            var mapper = mapperConfiguration.CreateMapper();
+            services.AddSingleton(mapper);
         }
 
     }
