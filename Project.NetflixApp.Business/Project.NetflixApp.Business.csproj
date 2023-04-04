@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Project.NetflixApp.Common\Project.NetflixApp.Common.csproj" />
     <ProjectReference Include="..\Project.NetflixApp.DataAccess\Project.NetflixApp.DataAccess.csproj" />
     <ProjectReference Include="..\Project.NetflixApp.Dtos\Project.NetflixApp.Dtos.csproj" />
   </ItemGroup>
