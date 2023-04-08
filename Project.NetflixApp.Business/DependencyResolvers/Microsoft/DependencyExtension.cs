@@ -1,11 +1,16 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Concrete;
 using Project.NetflixApp.Business.Mapping.AutoMapper;
+using Project.NetflixApp.Business.Validations.FluentValidation.CategoryValidations;
 using Project.NetflixApp.DataAccess.Contexts.EntityFramework;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.DataAccess.Repositories.Concrete;
+using Project.NetflixApp.Dtos.CategoryDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +41,12 @@ namespace Project.NetflixApp.Business.DependencyResolvers.Microsoft
             services.AddScoped<ITypeEntityRepository, TypeEntityRepository>();
             services.AddScoped<IUserOperationClaimRepository, UserOperationClaimRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            //service scopes
+            services.AddScoped<ICategoryService, CategoryManager>();
+
+            //fluent validation
+            services.AddTransient<IValidator<CreateCategoryDto>, CreateCategoryValidator>();
+            services.AddTransient<IValidator<UpdateCategoryDto>, UpdateCategoryValidator>();
 
             //automapper
             var mapperConfiguration = new MapperConfiguration(opt =>

@@ -39,7 +39,10 @@ namespace Project.NetflixApp.DataAccess.Repositories.Concrete
         {
             return await _netflixAppContext.Set<T>().Where(filter).SingleOrDefaultAsync(filter);
         }
-
+        public async Task<T> AsNoTrackingGetByFilterAsync(Expression<Func<T, bool>> filter)
+        {
+            return await _netflixAppContext.Set<T>().Where(filter).AsNoTracking().SingleOrDefaultAsync(filter);
+        }
         public async Task<T> GetByIdAsync(int id)
         {
             return await _netflixAppContext.Set<T>().FindAsync(id);

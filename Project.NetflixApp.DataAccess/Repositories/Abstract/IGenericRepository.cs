@@ -13,6 +13,7 @@ namespace Project.NetflixApp.DataAccess.Repositories.Abstract
         Task<IEnumerable<T>> GetAllFilterAsync(Expression<Func<T, bool>> filter);
         Task<T> GetByIdAsync(int id);
         Task<T> GetByFilterAsync(Expression<Func<T, bool>> filter);
+        Task<T> AsNoTrackingGetByFilterAsync(Expression<Func<T, bool>> filter);
         Task InsertAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
