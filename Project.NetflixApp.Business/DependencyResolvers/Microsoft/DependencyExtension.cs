@@ -41,8 +41,20 @@ namespace Project.NetflixApp.Business.DependencyResolvers.Microsoft
             services.AddScoped<ITypeEntityRepository, TypeEntityRepository>();
             services.AddScoped<IUserOperationClaimRepository, UserOperationClaimRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+
             //service scopes
             services.AddScoped<ICategoryService, CategoryManager>();
+            services.AddScoped<ICountryService, CountryManager>();
+            services.AddScoped<IDuractionService, DuractionManager>();
+            services.AddScoped<IGenderService,  GenderManager>();
+            services.AddScoped<IOperationClaimService, OperationClaimManager>();
+            services.AddScoped<IProductionCategoryService, ProductionCategoryManager>();
+            services.AddScoped<IProductionCommentService,  ProductionCommentManager>();
+            services.AddScoped<IProductionService, ProductionManager>();
+            services.AddScoped<IRatingService, RatingManager>();
+            services.AddScoped<ITypeEntityService, TypeEntityManager>();
+            services.AddScoped<IUserOperationClaimService,  UserOperationClaimManager>();
+            services.AddScoped<IUserService, UserManager>();
 
             //fluent validation
             services.AddTransient<IValidator<CreateCategoryDto>, CreateCategoryValidator>();
