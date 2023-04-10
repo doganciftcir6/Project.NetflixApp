@@ -19,7 +19,7 @@ namespace Project.NetflixApp.API.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetAllCategory()
+        public async Task<IActionResult> GetAllAsync()
         {
             var categoryResopnse = await _categoryService.GetAllAsync();
             if(categoryResopnse.ResponseType == ResponseType.Success)
@@ -29,7 +29,7 @@ namespace Project.NetflixApp.API.Controllers
             return BadRequest();
         }
         [HttpGet("[action]/{id}")]
-        public async Task<IActionResult> GetCategory(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
             var categoryResponse = await _categoryService.GetByIdAsync(id);
             if(categoryResponse.ResponseType == ResponseType.NotFound)
@@ -39,7 +39,7 @@ namespace Project.NetflixApp.API.Controllers
             return Ok(categoryResponse.Data);
         }
         [HttpDelete("[action]/{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var deleteResponse = await _categoryService.DeleteAsync(id);
             if(deleteResponse.ResponseType == ResponseType.NotFound)
@@ -49,7 +49,7 @@ namespace Project.NetflixApp.API.Controllers
             return Ok(deleteResponse.Message);
         }
         [HttpPost("[action]")]
-        public async Task<IActionResult> InsertCategory(CreateCategoryDto createCategoryDto)
+        public async Task<IActionResult> InsertAsync(CreateCategoryDto createCategoryDto)
         {
             var insertResponse = await _categoryService.InsertAsync(createCategoryDto);
             if(insertResponse.ResponseType == ResponseType.ValidationError)
@@ -59,7 +59,7 @@ namespace Project.NetflixApp.API.Controllers
             return Ok(insertResponse.Message);
         }
         [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateCategory(UpdateCategoryDto updateCategoryDto)
+        public async Task<IActionResult> UpdateAsync(UpdateCategoryDto updateCategoryDto)
         {
             var updateResponse = await _categoryService.UpdateAsync(updateCategoryDto);
             if(updateResponse.ResponseType == ResponseType.NotFound)

@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Dtos.GenderDtos;
+﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Dtos.GenderDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface IGenderService
     {
-        Task<CreateGenderDto> InsertAsync(CreateGenderDto createGenderDto);
-        Task<UpdateGenderDto> UpdateAsync(UpdateGenderDto updateGenderDto);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<GetGenderDto>> GetAllAsync();
-        Task<GetGenderDto> GetByIdAsync(int id);
+        Task<IResponse> InsertAsync(CreateGenderDto createGenderDto);
+        Task<IResponse> UpdateAsync(UpdateGenderDto updateGenderDto);
+        Task<IResponse> DeleteAsync(int id);
+        Task<IDataResponse<IEnumerable<GetGenderDto>>> GetAllAsync();
+        Task<IDataResponse<GetGenderDto>> GetByIdAsync(int id);
     }
 }

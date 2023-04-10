@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Dtos.ProductionCommentDtos;
+﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Dtos.ProductionCommentDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface IProductionCommentService
     {
-        Task<CreateProductionCommentDto> InsertAsync(CreateProductionCommentDto createProductionCommentDto);
-        Task<UpdateProductionCommentDto> UpdateAsync(UpdateProductionCommentDto updateProductionCommentDto);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<GetProductionCommentDto>> GetAllAsync();
-        Task<GetProductionCommentDto> GetByIdAsync(int id);
+        Task<IResponse> InsertAsync(CreateProductionCommentDto createProductionCommentDto);
+        Task<IResponse> UpdateAsync(UpdateProductionCommentDto updateProductionCommentDto);
+        Task<IResponse> DeleteAsync(int id);
+        Task<IDataResponse<IEnumerable<GetProductionCommentDto>>> GetAllAsync();
+        Task<IDataResponse<GetProductionCommentDto>> GetByIdAsync(int id);
     }
 }

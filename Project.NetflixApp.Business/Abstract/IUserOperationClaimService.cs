@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Dtos.UserOperationClaimDtos;
+﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Dtos.UserOperationClaimDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface IUserOperationClaimService
     {
-        Task<CreateUserOperationClaimDto> InsertAsync(CreateUserOperationClaimDto createUserOperationClaimDto);
-        Task<UpdateUserOperationClaimDto> UpdateAsync(UpdateUserOperationClaimDto updateUserOperationClaimDto);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<GetUserOperationClaimDto>> GetAllAsync();
-        Task<GetUserOperationClaimDto> GetByIdAsync(int id);
+        Task<IResponse> InsertAsync(CreateUserOperationClaimDto createUserOperationClaimDto);
+        Task<IResponse> UpdateAsync(UpdateUserOperationClaimDto updateUserOperationClaimDto);
+        Task<IResponse> DeleteAsync(int id);
+        Task<IDataResponse<IEnumerable<GetUserOperationClaimDto>>> GetAllAsync();
+        Task<IDataResponse<GetUserOperationClaimDto>> GetByIdAsync(int id);
     }
 }

@@ -38,7 +38,7 @@ namespace Project.NetflixApp.Business.Concrete
                 await _categoryRepository.DeleteAsync(data);
                 return new Response(ResponseType.Success, "The category was successfully deleted");
             }
-            return new Response(ResponseType.NotFound, $"The category parameter could not be deleted because the category could not be found.");
+            return new Response(ResponseType.NotFound, "The category parameter could not be deleted because the category could not be found.");
         }
 
         public async Task<IDataResponse<IEnumerable<GetCategoryDto>>> GetAllAsync()
@@ -73,20 +73,21 @@ namespace Project.NetflixApp.Business.Concrete
 
         public async Task<IResponse> UpdateAsync(UpdateCategoryDto updateCategoryDto)
         {
-            var validationResponse = _updateCategoryValidator.Validate(updateCategoryDto);
-            if (validationResponse.IsValid)
+            //bu projede update metotunu repository içerisinde tracking özelliğini kullanan bir şekilde yaptım dolayısıyla tracking özelliğini UpdateAsync yapacağı için 2 kere tracking yapmak hataya sebebiyet verir. Bu nedenle AsNoTracking özelliği olan bir kayıt çeken metotu kullanarak notfound durumunu değerlendireceğim.
+            var oldData = await _categoryRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateCategoryDto.Id);
+            if (oldData != null)
             {
-                //bu projede update metotunu repository içerisinde tracking özelliğini kullanan bir şekilde yaptım dolayısıyla tracking özelliğini UpdateAsync yapacağı için 2 kere tracking yapmak hataya sebebiyet verir. Bu nedenle AsNoTracking özelliği olan bir kayıt çeken metotu kullanarak notfound durumunu değerlendireceğim.
-                var oldData = await _categoryRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateCategoryDto.Id);
-                if (oldData != null)
+                var validationResponse = _updateCategoryValidator.Validate(updateCategoryDto);
+                if (validationResponse.IsValid)
                 {
                     var mappingEntity = _mapper.Map<Category>(updateCategoryDto);
                     await _categoryRepository.UpdateAsync(mappingEntity);
                     return new Response(ResponseType.Success, "The category updating process has been successfully completed.");
                 }
-                return new Response(ResponseType.NotFound, "The related category could not be found. So the update process could not be completed. Category Id:");
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
+            return new Response(ResponseType.NotFound, "The related category could not be found. So the update process could not be completed. Category Id:");
         }
     }
 }
+

@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.TypeEntityDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,62 @@ namespace Project.NetflixApp.Business.Concrete
             _updateTypeEntityDtoValidator = updateTypeEntityDtoValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _typeEntityRepository.GetByIdAsync(id);
             if (data != null)
             {
                 await _typeEntityRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The typeEntity was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The typeEntity parameter could not be deleted because the typeEntity could not be found.");
         }
 
-        public async Task<IEnumerable<GetTypeEntityDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetTypeEntityDto>>> GetAllAsync()
         {
             var entityData = await _typeEntityRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetTypeEntityDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetTypeEntityDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetTypeEntityDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetTypeEntityDto>> GetByIdAsync(int id)
         {
             var entityData = await _typeEntityRepository.GetByFilterAsync(x => x.Id == id);
-            if(entityData != null)
+            if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetTypeEntityDto>(entityData);
-                return mappingDto;
+                return new DataResponse<GetTypeEntityDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetTypeEntityDto>(ResponseType.NotFound, $"The related typeEntity could not be found. TypeEntity Id:");
         }
 
-        public async Task<CreateTypeEntityDto> InsertAsync(CreateTypeEntityDto createTypeEntityDto)
+        public async Task<IResponse> InsertAsync(CreateTypeEntityDto createTypeEntityDto)
         {
             var validationResponse = _createTypeEntityDtoValidator.Validate(createTypeEntityDto);
             if (validationResponse.IsValid)
             {
                 var mappingEntity = _mapper.Map<TypeEntity>(createTypeEntityDto);
                 await _typeEntityRepository.InsertAsync(mappingEntity);
-                return createTypeEntityDto;
+                return new Response(ResponseType.Success, "The typeEntity adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateTypeEntityDto> UpdateAsync(UpdateTypeEntityDto updateTypeEntityDto)
+        public async Task<IResponse> UpdateAsync(UpdateTypeEntityDto updateTypeEntityDto)
         {
-            var validationResponse = _updateTypeEntityDtoValidator.Validate(updateTypeEntityDto);
-            if (validationResponse.IsValid)
+            var oldData = await _typeEntityRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateTypeEntityDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<TypeEntity>(updateTypeEntityDto);
-                await _typeEntityRepository.UpdateAsync(mappingEntity);
-                return updateTypeEntityDto;
+                var validationResponse = _updateTypeEntityDtoValidator.Validate(updateTypeEntityDto);
+                if (validationResponse.IsValid)
+                {
+                    var mappingEntity = _mapper.Map<TypeEntity>(updateTypeEntityDto);
+                    await _typeEntityRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The typeEntity updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related typeEntity could not be found. So the update process could not be completed. TypeEntity Id:");
         }
     }
 }

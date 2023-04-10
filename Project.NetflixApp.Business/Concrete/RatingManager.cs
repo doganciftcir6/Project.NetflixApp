@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.RatingDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,62 @@ namespace Project.NetflixApp.Business.Concrete
             _updateRatingDtoValidator = updateRatingDtoValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _ratingRepository.GetByIdAsync(id);
-            if(data != null)
+            if (data != null)
             {
                 await _ratingRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The rating was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The rating parameter could not be deleted because the rating could not be found.");
         }
 
-        public async Task<IEnumerable<GetRatingDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetRatingDto>>> GetAllAsync()
         {
             var entityData = await _ratingRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetRatingDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetRatingDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetRatingDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetRatingDto>> GetByIdAsync(int id)
         {
             var entityData = await _ratingRepository.GetByFilterAsync(x => x.Id == id);
-            if(entityData != null)
+            if (entityData != null)
             {
-                var mappingDto =_mapper.Map<GetRatingDto>(entityData);
-                return mappingDto;
+                var mappingDto = _mapper.Map<GetRatingDto>(entityData);
+                return new DataResponse<GetRatingDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetRatingDto>(ResponseType.NotFound, $"The related rating could not be found. Rating Id:");
         }
 
-        public async Task<CreateRatingDto> InsertAsync(CreateRatingDto createRatingDto)
+        public async Task<IResponse> InsertAsync(CreateRatingDto createRatingDto)
         {
             var validationRules = _createRatingDtoValidator.Validate(createRatingDto);
             if (validationRules.IsValid)
             {
                 var mappingEntity = _mapper.Map<Rating>(createRatingDto);
                 await _ratingRepository.InsertAsync(mappingEntity);
-                return createRatingDto;
+                return new Response(ResponseType.Success, "The rating adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationRules.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateRatingDto> UpdateAsync(UpdateRatingDto updateRatingDto)
+        public async Task<IResponse> UpdateAsync(UpdateRatingDto updateRatingDto)
         {
-            var validationRules = _updateRatingDtoValidator.Validate(updateRatingDto);
-            if (validationRules.IsValid)
+            var oldData = await _ratingRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateRatingDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<Rating>(updateRatingDto);
-                await _ratingRepository.UpdateAsync(mappingEntity);
-                return updateRatingDto;
+                var validationRules = _updateRatingDtoValidator.Validate(updateRatingDto);
+                if (validationRules.IsValid)
+                {
+                    var mappingEntity = _mapper.Map<Rating>(updateRatingDto);
+                    await _ratingRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The rating updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationRules.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related rating could not be found. So the update process could not be completed. Rating Id:");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Dtos.UserDtos;
+﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Dtos.UserDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface IUserService
     {
-        Task<CreateUserDto> InsertAsync(CreateUserDto createUserDto);
-        Task<UpdateUserDto> UpdateAsync(UpdateUserDto updateUserDto);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<GetUserDto>> GetAllAsync();
-        Task<GetUserDto> GetByIdAsync(int id);
+        Task<IResponse> InsertAsync(CreateUserDto createUserDto);
+        Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto);
+        Task<IResponse> DeleteAsync(int id);
+        Task<IDataResponse<IEnumerable<GetUserDto>>> GetAllAsync();
+        Task<IDataResponse<GetUserDto>> GetByIdAsync(int id);
     }
 }

@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.ProductionDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,62 @@ namespace Project.NetflixApp.Business.Concrete
             _updateProductionDtoValidator = updateProductionDtoValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _productionRepository.GetByIdAsync(id);
-            if(data != null)
+            if (data != null)
             {
                 await _productionRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The production was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The production parameter could not be deleted because the production could not be found.");
         }
 
-        public async Task<IEnumerable<GetProductionDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetProductionDto>>> GetAllAsync()
         {
             var entityData = await _productionRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetProductionDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetProductionDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetProductionDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetProductionDto>> GetByIdAsync(int id)
         {
             var entityData = await _productionRepository.GetByFilterAsync(x => x.Id == id);
-            if(entityData != null)
+            if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetProductionDto>(entityData);
-                return mappingDto;
+                return new DataResponse<GetProductionDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetProductionDto>(ResponseType.NotFound, $"The related production could not be found. Production Id:");
         }
 
-        public async Task<CreateProductionDto> InsertAsync(CreateProductionDto createProductionDto)
+        public async Task<IResponse> InsertAsync(CreateProductionDto createProductionDto)
         {
             var validationResponse = _createProductionDtoValidator.Validate(createProductionDto);
             if (validationResponse.IsValid)
             {
                 var mappingEntity = _mapper.Map<Production>(createProductionDto);
                 await _productionRepository.InsertAsync(mappingEntity);
-                return createProductionDto;
+                return new Response(ResponseType.Success, "The production adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateProductionDto> UpdateAsync(UpdateProductionDto updateProductionDto)
+        public async Task<IResponse> UpdateAsync(UpdateProductionDto updateProductionDto)
         {
-            var validationResponse = _updateProductionDtoValidator.Validate(updateProductionDto);
-            if (validationResponse.IsValid)
+            var oldData = await _productionRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateProductionDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<Production>(updateProductionDto);
-                await _productionRepository.UpdateAsync(mappingEntity);
-                return updateProductionDto;
+                var validationResponse = _updateProductionDtoValidator.Validate(updateProductionDto);
+                if (validationResponse.IsValid)
+                {
+                    var mappingEntity = _mapper.Map<Production>(updateProductionDto);
+                    await _productionRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The production updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related production could not be found. So the update process could not be completed. Production Id:");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Dtos.CountryDtos;
+﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Dtos.CountryDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface ICountryService
     {
-        Task<CreateCountryDto> InsertAsync(CreateCountryDto createCountryDto);
-        Task<UpdateCountryDto> UpdateAsync(UpdateCountryDto updateCountryDto);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<GetCountryDto>> GetAllAsync();
-        Task<GetCountryDto> GetByIdAsync(int id);
+        Task<IResponse> InsertAsync(CreateCountryDto createCountryDto);
+        Task<IResponse> UpdateAsync(UpdateCountryDto updateCountryDto);
+        Task<IResponse> DeleteAsync(int id);
+        Task<IDataResponse<IEnumerable<GetCountryDto>>> GetAllAsync();
+        Task<IDataResponse<GetCountryDto>> GetByIdAsync(int id);
     }
 }

@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.UserOperationClaimDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,62 @@ namespace Project.NetflixApp.Business.Concrete
             _updateUserOperationClaimDtoValidator = updateUserOperationClaimDtoValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _userOperationClaimRepository.GetByIdAsync(id);
-            if(data != null)
+            if (data != null)
             {
                 await _userOperationClaimRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The useroperationclaim was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The useroperationclaim parameter could not be deleted because the useroperationclaim could not be found.");
         }
 
-        public async Task<IEnumerable<GetUserOperationClaimDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetUserOperationClaimDto>>> GetAllAsync()
         {
             var entityData = await _userOperationClaimRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetUserOperationClaimDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetUserOperationClaimDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetUserOperationClaimDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetUserOperationClaimDto>> GetByIdAsync(int id)
         {
             var entityData = await _userOperationClaimRepository.GetByFilterAsync(x => x.Id == id);
-            if(entityData != null)
+            if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetUserOperationClaimDto>(entityData);
-                return mappingDto;
+                return new DataResponse<GetUserOperationClaimDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetUserOperationClaimDto>(ResponseType.NotFound, $"The related useroperationclaim could not be found. Useroperationclaim Id:");
         }
 
-        public async Task<CreateUserOperationClaimDto> InsertAsync(CreateUserOperationClaimDto createUserOperationClaimDto)
+        public async Task<IResponse> InsertAsync(CreateUserOperationClaimDto createUserOperationClaimDto)
         {
             var validationResponse = _createUserOperationClaimDtoValidator.Validate(createUserOperationClaimDto);
             if (validationResponse.IsValid)
             {
                 var mappingEntity = _mapper.Map<UserOperationClaim>(createUserOperationClaimDto);
                 await _userOperationClaimRepository.InsertAsync(mappingEntity);
-                return createUserOperationClaimDto;
+                return new Response(ResponseType.Success, "The useroperationclaim adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateUserOperationClaimDto> UpdateAsync(UpdateUserOperationClaimDto updateUserOperationClaimDto)
+        public async Task<IResponse> UpdateAsync(UpdateUserOperationClaimDto updateUserOperationClaimDto)
         {
-            var validationResponse = _updateUserOperationClaimDtoValidator.Validate(updateUserOperationClaimDto);
-            if (validationResponse.IsValid)
+            var oldData = await _userOperationClaimRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateUserOperationClaimDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<UserOperationClaim>(updateUserOperationClaimDto);
-                await _userOperationClaimRepository.UpdateAsync(mappingEntity);
-                return updateUserOperationClaimDto;
+                var validationResponse = _updateUserOperationClaimDtoValidator.Validate(updateUserOperationClaimDto);
+                if (validationResponse.IsValid)
+                {
+                    var mappingEntity = _mapper.Map<UserOperationClaim>(updateUserOperationClaimDto);
+                    await _userOperationClaimRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The useroperationclaim updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related useroperationcliam could not be found. So the update process could not be completed. Useroperationclaim Id:");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Dtos.TypeEntityDtos;
+﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Dtos.TypeEntityDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface ITypeEntityService
     {
-        Task<CreateTypeEntityDto> InsertAsync(CreateTypeEntityDto createTypeEntityDto);
-        Task<UpdateTypeEntityDto> UpdateAsync(UpdateTypeEntityDto updateTypeEntityDto);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<GetTypeEntityDto>> GetAllAsync();
-        Task<GetTypeEntityDto> GetByIdAsync(int id);
+        Task<IResponse> InsertAsync(CreateTypeEntityDto createTypeEntityDto);
+        Task<IResponse> UpdateAsync(UpdateTypeEntityDto updateTypeEntityDto);
+        Task<IResponse> DeleteAsync(int id);
+        Task<IDataResponse<IEnumerable<GetTypeEntityDto>>> GetAllAsync();
+        Task<IDataResponse<GetTypeEntityDto>> GetByIdAsync(int id);
     }
 }

@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.UserDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,62 @@ namespace Project.NetflixApp.Business.Concrete
             _updateUserDtoValidator = updateUserDtoValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _userRepository.GetByIdAsync(id);
-            if(data != null)
+            if (data != null)
             {
                 await _userRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The user was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The user parameter could not be deleted because the user could not be found.");
         }
 
-        public async Task<IEnumerable<GetUserDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetUserDto>>> GetAllAsync()
         {
             var entityData = await _userRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetUserDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetUserDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetUserDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetUserDto>> GetByIdAsync(int id)
         {
             var entityData = await _userRepository.GetByFilterAsync(x => x.Id == id);
-            if(entityData != null)
+            if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetUserDto>(entityData);
-                return mappingDto;
+                return new DataResponse<GetUserDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetUserDto>(ResponseType.NotFound, $"The related user could not be found. User Id:");
         }
 
-        public async Task<CreateUserDto> InsertAsync(CreateUserDto createUserDto)
+        public async Task<IResponse> InsertAsync(CreateUserDto createUserDto)
         {
             var validationResponse = _createUserDtoValidator.Validate(createUserDto);
             if (validationResponse.IsValid)
             {
                 var mappingEntity = _mapper.Map<User>(createUserDto);
                 await _userRepository.InsertAsync(mappingEntity);
-                return createUserDto;
+                return new Response(ResponseType.Success, "The user adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateUserDto> UpdateAsync(UpdateUserDto updateUserDto)
+        public async Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto)
         {
-            var validationResponse = _updateUserDtoValidator.Validate(updateUserDto);
-            if (validationResponse.IsValid)
+            var oldData = await _userRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateUserDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<User>(updateUserDto);
-                await _userRepository.UpdateAsync(mappingEntity);
-                return updateUserDto;
+                var validationResponse = _updateUserDtoValidator.Validate(updateUserDto);
+                if (validationResponse.IsValid)
+                {
+                    var mappingEntity = _mapper.Map<User>(updateUserDto);
+                    await _userRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The user updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related user could not be found. So the update process could not be completed. User Id:");
         }
     }
 }

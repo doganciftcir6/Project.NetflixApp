@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Dtos.ProductionCategoryDtos;
+﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Dtos.ProductionCategoryDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface IProductionCategoryService
     {
-        Task<CreateProductionCategoryDto> InsertAsync(CreateProductionCategoryDto createProductionCategoryDto);
-        Task<UpdateProductionCategoryDto> UpdateAsync(UpdateProductionCategoryDto updateProductionCategoryDto);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<GetProductionCategoryDto>> GetAllAsync();
-        Task<GetProductionCategoryDto> GetByIdAsync(int id);
+        Task<IResponse> InsertAsync(CreateProductionCategoryDto createProductionCategoryDto);
+        Task<IResponse> UpdateAsync(UpdateProductionCategoryDto updateProductionCategoryDto);
+        Task<IResponse> DeleteAsync(int id);
+        Task<IDataResponse<IEnumerable<GetProductionCategoryDto>>> GetAllAsync();
+        Task<IDataResponse<GetProductionCategoryDto>> GetByIdAsync(int id);
     }
 }

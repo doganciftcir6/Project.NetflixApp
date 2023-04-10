@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.GenderDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,62 @@ namespace Project.NetflixApp.Business.Concrete
             _updateGenderDtoValidator = updateGenderDtoValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _genderRepository.GetByIdAsync(id);
-            if(data != null)
+            if (data != null)
             {
                 await _genderRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The gender was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The gender parameter could not be deleted because the gender could not be found.");
         }
 
-        public async Task<IEnumerable<GetGenderDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetGenderDto>>> GetAllAsync()
         {
             var entityData = await _genderRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetGenderDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetGenderDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetGenderDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetGenderDto>> GetByIdAsync(int id)
         {
             var entityData = await _genderRepository.GetByFilterAsync(x => x.Id == id);
-            if(entityData != null)
+            if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetGenderDto>(entityData);
-                return mappingDto;
+                return new DataResponse<GetGenderDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetGenderDto>(ResponseType.NotFound, $"The related gender could not be found. Gender Id:");
         }
 
-        public async Task<CreateGenderDto> InsertAsync(CreateGenderDto createGenderDto)
+        public async Task<IResponse> InsertAsync(CreateGenderDto createGenderDto)
         {
             var validationReponse = _createGenderDtoValidator.Validate(createGenderDto);
             if (validationReponse.IsValid)
             {
                 var mappingEntity = _mapper.Map<Gender>(validationReponse);
                 await _genderRepository.InsertAsync(mappingEntity);
-                return createGenderDto;
+                return new Response(ResponseType.Success, "The gender adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationReponse.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateGenderDto> UpdateAsync(UpdateGenderDto updateGenderDto)
+        public async Task<IResponse> UpdateAsync(UpdateGenderDto updateGenderDto)
         {
-            var validationResponse = _updateGenderDtoValidator.Validate(updateGenderDto);
-            if (validationResponse.IsValid)
+            var oldData = await _genderRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateGenderDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<Gender>(validationResponse);
-                await _genderRepository.UpdateAsync(mappingEntity);
-                return updateGenderDto;
+                var validationResponse = _updateGenderDtoValidator.Validate(updateGenderDto);
+                if (validationResponse.IsValid)
+                {
+                    var mappingEntity = _mapper.Map<Gender>(validationResponse);
+                    await _genderRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The gender updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related gender could not be found. So the update process could not be completed. Gender Id:");
         }
     }
 }

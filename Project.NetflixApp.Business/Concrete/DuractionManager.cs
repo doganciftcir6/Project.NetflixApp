@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.DuractionDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,62 @@ namespace Project.NetflixApp.Business.Concrete
             _updateDuractionValidator = updateDuractionValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _duractionRepository.GetByIdAsync(id);
-            if(data != null)
+            if (data != null)
             {
                 await _duractionRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The duraction was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The duraction parameter could not be deleted because the duraction could not be found.");
         }
 
-        public async Task<IEnumerable<GetDuractionDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetDuractionDto>>> GetAllAsync()
         {
             var entityData = await _duractionRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetDuractionDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetDuractionDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetDuractionDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetDuractionDto>> GetByIdAsync(int id)
         {
             var entityData = await _duractionRepository.GetByFilterAsync(x => x.Id == id);
-            if(entityData != null)
+            if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetDuractionDto>(entityData);
-                return mappingDto;
+                return new DataResponse<GetDuractionDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetDuractionDto>(ResponseType.NotFound, $"The related duraction could not be found. Duraction Id:");
         }
 
-        public async Task<CreateDuractionDto> InsertAsync(CreateDuractionDto createDuractionDto)
+        public async Task<IResponse> InsertAsync(CreateDuractionDto createDuractionDto)
         {
             var validationResponse = _createDuractionValidator.Validate(createDuractionDto);
             if (validationResponse.IsValid)
             {
                 var mappingEntity = _mapper.Map<Duraction>(createDuractionDto);
                 await _duractionRepository.InsertAsync(mappingEntity);
-                return createDuractionDto;
+                return new Response(ResponseType.Success, "The duraction adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateDuractionDto> UpdateAsync(UpdateDuractionDto updateDuractionDto)
+        public async Task<IResponse> UpdateAsync(UpdateDuractionDto updateDuractionDto)
         {
-            var validationResponse = _updateDuractionValidator.Validate(updateDuractionDto);
-            if (validationResponse.IsValid)
+            var oldData = await _duractionRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateDuractionDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<Duraction>(updateDuractionDto);
-                await _duractionRepository.UpdateAsync(mappingEntity);
-                return updateDuractionDto;
+                var validationResponse = _updateDuractionValidator.Validate(updateDuractionDto);
+                if (validationResponse.IsValid)
+                {
+                    var mappingEntity = _mapper.Map<Duraction>(updateDuractionDto);
+                    await _duractionRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The duraction updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related duraction could not be found. So the update process could not be completed. Duraction Id:");
         }
     }
 }

@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
+using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.Dtos.CountryDtos;
 using Project.NetflixApp.Entities;
@@ -27,55 +31,63 @@ namespace Project.NetflixApp.Business.Concrete
             _updateCountryDtoValidator = updateCountryDtoValidator;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResponse> DeleteAsync(int id)
         {
             var data = await _countryRepository.GetByIdAsync(id);
             if (data != null)
             {
                 await _countryRepository.DeleteAsync(data);
+                return new Response(ResponseType.Success, "The country was successfully deleted");
             }
+            return new Response(ResponseType.NotFound, "The country parameter could not be deleted because the country could not be found.");
         }
 
-        public async Task<IEnumerable<GetCountryDto>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetCountryDto>>> GetAllAsync()
         {
             var entityData = await _countryRepository.GetAllAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetCountryDto>>(entityData);
-            return mappingDto;
+            return new DataResponse<IEnumerable<GetCountryDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<GetCountryDto> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetCountryDto>> GetByIdAsync(int id)
         {
             var entityData = await _countryRepository.GetByFilterAsync(x => x.Id == id);
             if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetCountryDto>(entityData);
-                return mappingDto;
+                return new DataResponse<GetCountryDto>(ResponseType.Success, mappingDto);
             }
-            return null;
+            return new DataResponse<GetCountryDto>(ResponseType.NotFound, $"The related country could not be found. Country Id:");
         }
 
-        public async Task<CreateCountryDto> InsertAsync(CreateCountryDto createCountryDto)
+        public async Task<IResponse> InsertAsync(CreateCountryDto createCountryDto)
         {
             var validationResponse = _createCountryDtoValidator.Validate(createCountryDto);
             if (validationResponse.IsValid)
             {
                 var mappingEntity = _mapper.Map<Country>(createCountryDto);
                 await _countryRepository.InsertAsync(mappingEntity);
-                return createCountryDto;
+                return new Response(ResponseType.Success, "The country adding process has been successfully completed.");
             }
-            return null;
+            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
 
-        public async Task<UpdateCountryDto> UpdateAsync(UpdateCountryDto updateCountryDto)
+        public async Task<IResponse> UpdateAsync(UpdateCountryDto updateCountryDto)
         {
-            var validationResponse = _updateCountryDtoValidator.Validate(updateCountryDto);
-            if (validationResponse.IsValid)
+            var oldData = await _countryRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateCountryDto.Id);
+            if (oldData != null)
             {
-                var mappingEntity = _mapper.Map<Country>(updateCountryDto);
-                await _countryRepository.UpdateAsync(mappingEntity);
-                return updateCountryDto;
+                var validationResponse = _updateCountryDtoValidator.Validate(updateCountryDto);
+                if (validationResponse.IsValid)
+                {
+
+                    var mappingEntity = _mapper.Map<Country>(updateCountryDto);
+                    await _countryRepository.UpdateAsync(mappingEntity);
+                    return new Response(ResponseType.Success, "The country updating process has been successfully completed.");
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return null;
+            return new Response(ResponseType.NotFound, "The related country could not be found. So the update process could not be completed. Country Id:");
         }
     }
 }
