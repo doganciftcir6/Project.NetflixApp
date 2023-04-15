@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Common.Enums;
@@ -50,9 +51,29 @@ namespace Project.NetflixApp.Business.Concrete
             return new DataResponse<IEnumerable<GetProductionCategoryDto>>(ResponseType.Success, mappingDto);
         }
 
+        public async Task<IDataResponse<IEnumerable<GetProductionCategoryDto>>> GetAllWithRelationsAsync()
+        {
+            var query = _productionCategoryRepository.GetQuery();
+            var entityData = await query.AsNoTracking().Include(x => x.Production).ThenInclude(x => x.TypeEntity).Include(x => x.Production).ThenInclude(x => x.Duraction).Include(x => x.Production).ThenInclude(x => x.Country).Include(X => X.Production).ThenInclude(x => x.Rating).Include(x => x.Category).ToListAsync();
+            var mappingDto = _mapper.Map<IEnumerable<GetProductionCategoryDto>>(entityData);
+            return new DataResponse<IEnumerable<GetProductionCategoryDto>>(ResponseType.Success, mappingDto);
+        }
+
         public async Task<IDataResponse<GetProductionCategoryDto>> GetByIdAsync(int id)
         {
             var entityData = await _productionCategoryRepository.GetByFilterAsync(x => x.Id == id);
+            if (entityData != null)
+            {
+                var mappingDto = _mapper.Map<GetProductionCategoryDto>(entityData);
+                return new DataResponse<GetProductionCategoryDto>(ResponseType.Success, mappingDto);
+            }
+            return new DataResponse<GetProductionCategoryDto>(ResponseType.NotFound, $"The related productioncategory could not be found. Productioncategory Id:");
+        }
+
+        public async Task<IDataResponse<GetProductionCategoryDto>> GetByIdWithReliationsAsync(int id)
+        {
+            var query = _productionCategoryRepository.GetQuery();
+            var entityData = await query.Where(x => x.Id == id).AsNoTracking().Include(x => x.Production).ThenInclude(x => x.TypeEntity).Include(x => x.Production).ThenInclude(x => x.Duraction).Include(x => x.Production).ThenInclude(x => x.Country).Include(X => X.Production).ThenInclude(x => x.Rating).Include(x => x.Category).FirstOrDefaultAsync();
             if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetProductionCategoryDto>(entityData);

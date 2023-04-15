@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
+using Project.NetflixApp.Dtos.ProductionCommentDtos;
 using Project.NetflixApp.Dtos.ProductionDtos;
 using Project.NetflixApp.Entities;
 using System;
@@ -49,9 +51,29 @@ namespace Project.NetflixApp.Business.Concrete
             return new DataResponse<IEnumerable<GetProductionDto>>(ResponseType.Success, mappingDto);
         }
 
+        public async Task<IDataResponse<IEnumerable<GetProductionDto>>> GetAllWithReliationsAsync()
+        {
+            var query = _productionRepository.GetQuery();
+            var data = await query.AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).ToListAsync();
+            var mappingDto = _mapper.Map<IEnumerable<GetProductionDto>>(data);
+            return new DataResponse<IEnumerable<GetProductionDto>>(ResponseType.Success, mappingDto);
+        }
+
         public async Task<IDataResponse<GetProductionDto>> GetByIdAsync(int id)
         {
             var entityData = await _productionRepository.GetByFilterAsync(x => x.Id == id);
+            if (entityData != null)
+            {
+                var mappingDto = _mapper.Map<GetProductionDto>(entityData);
+                return new DataResponse<GetProductionDto>(ResponseType.Success, mappingDto);
+            }
+            return new DataResponse<GetProductionDto>(ResponseType.NotFound, $"The related production could not be found. Production Id:");
+        }
+
+        public async Task<IDataResponse<GetProductionDto>> GetByIdWithReliationsAsync(int id)
+        {
+            var query = _productionRepository.GetQuery();
+            var entityData = await query.Where(x => x.Id == id).AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).FirstOrDefaultAsync();
             if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetProductionDto>(entityData);
@@ -80,6 +102,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var validationResponse = _updateProductionDtoValidator.Validate(updateProductionDto);
                 if (validationResponse.IsValid)
                 {
+                    updateProductionDto.CreateDate = oldData.CreateDate;
                     var mappingEntity = _mapper.Map<Production>(updateProductionDto);
                     await _productionRepository.UpdateAsync(mappingEntity);
                     return new Response(ResponseType.Success, "The production updating process has been successfully completed.");

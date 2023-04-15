@@ -13,6 +13,7 @@ namespace Project.NetflixApp.Dtos.ProductionDtos
         public string Director { get; set; }
         public string Cast { get; set; }
         public string ReleaseYear { get; set; }
+        public DateTime CreateDate { get; set; }
 
         public int TypeEntityId { get; set; }
         public int CountryId { get; set; }

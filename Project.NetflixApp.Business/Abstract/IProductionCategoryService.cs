@@ -14,6 +14,8 @@ namespace Project.NetflixApp.Business.Abstract
         Task<IResponse> UpdateAsync(UpdateProductionCategoryDto updateProductionCategoryDto);
         Task<IResponse> DeleteAsync(int id);
         Task<IDataResponse<IEnumerable<GetProductionCategoryDto>>> GetAllAsync();
+        Task<IDataResponse<IEnumerable<GetProductionCategoryDto>>> GetAllWithRelationsAsync();
         Task<IDataResponse<GetProductionCategoryDto>> GetByIdAsync(int id);
+        Task<IDataResponse<GetProductionCategoryDto>> GetByIdWithReliationsAsync(int id);
     }
 }

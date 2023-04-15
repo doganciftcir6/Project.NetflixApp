@@ -65,7 +65,7 @@ namespace Project.NetflixApp.Business.Concrete
             var validationReponse = _createGenderDtoValidator.Validate(createGenderDto);
             if (validationReponse.IsValid)
             {
-                var mappingEntity = _mapper.Map<Gender>(validationReponse);
+                var mappingEntity = _mapper.Map<Gender>(createGenderDto);
                 await _genderRepository.InsertAsync(mappingEntity);
                 return new Response(ResponseType.Success, "The gender adding process has been successfully completed.");
             }
@@ -80,7 +80,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var validationResponse = _updateGenderDtoValidator.Validate(updateGenderDto);
                 if (validationResponse.IsValid)
                 {
-                    var mappingEntity = _mapper.Map<Gender>(validationResponse);
+                    var mappingEntity = _mapper.Map<Gender>(updateGenderDto);
                     await _genderRepository.UpdateAsync(mappingEntity);
                     return new Response(ResponseType.Success, "The gender updating process has been successfully completed.");
                 }

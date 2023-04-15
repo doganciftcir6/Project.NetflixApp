@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Project.NetflixApp.Dtos.ProductionCategoryDtos;
 using Project.NetflixApp.Dtos.ProductionCommentDtos;
 using Project.NetflixApp.Dtos.ProductionDtos;
 using Project.NetflixApp.Entities;
@@ -16,7 +17,9 @@ namespace Project.NetflixApp.Business.Mapping.AutoMapper
         {
             CreateMap<Production, CreateProductionDto>().ReverseMap();
             CreateMap<Production, UpdateProductionDto>().ReverseMap();
-            CreateMap<Production, GetProductionDto>().ReverseMap();
+            CreateMap<GetProductionDto, Production>().ReverseMap()
+                .ForMember(x => x.Categories, opt => opt.MapFrom(y => y.ProductionCategories.Select(x => x.Category)))
+                 .ForMember(x => x.ProductionComments, opt => opt.MapFrom(y => y.ProductionComments));
         }
     }
 }

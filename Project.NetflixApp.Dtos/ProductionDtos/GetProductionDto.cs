@@ -1,4 +1,5 @@
 ﻿using Project.NetflixApp.Dtos.CategoryDtos;
+using Project.NetflixApp.Dtos.CountryDtos;
 using Project.NetflixApp.Dtos.DuractionDtos;
 using Project.NetflixApp.Dtos.ProductionCategoryDtos;
 using Project.NetflixApp.Dtos.ProductionCommentDtos;
@@ -24,12 +25,14 @@ namespace Project.NetflixApp.Dtos.ProductionDtos
         public int TypeEntityId { get; set; }
         public GetTypeEntityDto TypeEntity { get; set; }
         public int CountryId { get; set; }
-        public GetCategoryDto Country { get; set; }
+        public GetCountryDto Country { get; set; }
         public int RatingId { get; set; }
         public GetRatingDto Rating { get; set; }
         public int DuractionId { get; set; }
         public GetDuractionDto Duraction { get; set; }
+        //çoka çok ilişkiyi includelamak burda automapperin profilinde yaptığım kullanım önemlidir.
+        public List<GetCategoryDto> Categories { get; set; }
+        //ProductionCategory çoka bir olan ilişkiyi includelamak.
         public List<GetProductionCommentDto> ProductionComments { get; set; }
-        public List<GetProductionCategoryDto> ProductionCategories { get; set; }
     }
 }
