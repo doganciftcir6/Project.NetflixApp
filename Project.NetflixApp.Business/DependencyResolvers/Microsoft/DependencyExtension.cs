@@ -79,6 +79,7 @@ namespace Project.NetflixApp.Business.DependencyResolvers.Microsoft
             services.AddScoped<ITypeEntityService, TypeEntityManager>();
             services.AddScoped<IUserOperationClaimService,  UserOperationClaimManager>();
             services.AddScoped<IUserService, UserManager>();
+            services.AddScoped<IAuthService, AuthManager>();
 
             //fluent validation
             services.AddTransient<IValidator<CreateCategoryDto>, CreateCategoryValidator>();

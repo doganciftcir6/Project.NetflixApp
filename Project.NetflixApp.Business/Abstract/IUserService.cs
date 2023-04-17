@@ -10,11 +10,12 @@ namespace Project.NetflixApp.Business.Abstract
 {
     public interface IUserService
     {
-        Task<IResponse> InsertAsync(CreateUserDto createUserDto);
-        Task<IResponse> RegisterAsync(RegisterUserDto registerUserDto);
+        Task CreateUserAsync(RegisterUserDto registerUserDto);
         Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto);
         Task<IResponse> DeleteAsync(int id);
         Task<IDataResponse<IEnumerable<GetUserDto>>> GetAllAsync();
         Task<IDataResponse<GetUserDto>> GetByIdAsync(int id);
+        Task<IDataResponse<GetUserDto>> GetByEmailAsync(string email);
+        Task<IResponse> UserEmailExistAsync(string email);
     }
 }

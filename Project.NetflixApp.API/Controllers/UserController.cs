@@ -47,16 +47,6 @@ namespace Project.NetflixApp.API.Controllers
             }
             return Ok(deleteResponse.Message);
         }
-        [HttpPost("[action]")]
-        public async Task<IActionResult> InsertAsync(CreateUserDto createUserDto)
-        {
-            var insertResponse = await _userService.InsertAsync(createUserDto);
-            if(insertResponse.ResponseType == ResponseType.ValidationError)
-            {
-                return BadRequest(insertResponse.CustomValidationErrors);
-            }
-            return Ok(insertResponse.Message);
-        }
         [HttpPut("[action]")]
         public async Task<IActionResult> UpdateAsync(UpdateUserDto updateUserDto)
         {

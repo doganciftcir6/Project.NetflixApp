@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
+using Project.NetflixApp.Common.Utilities.Results.Concrete;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,9 +18,29 @@ namespace Project.NetflixApp.Common.Utilities.Hashing
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
                 passwordSalt = hmac.Key;
-                //şifremi hashle
+                //şifremi hashle burda saltla birleşiyor aslında.
                 passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             }
+        }
+
+        //login işlemi için yeni bir metot
+        public static IResponse VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            //artık elimde bir passwordsalt var o yüzden buraya girelim onu. Salt kontrolü burda yapılıyor.
+            using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
+            {
+                //passwordhash oluşturalım
+                var computeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+                //karakter karakter kontrol işlemi yapıcaz. 
+                for (int i = 0; i < computeHash.Length; i++)
+                {
+                    if (computeHash[i] != passwordHash[i])
+                    {
+                        return new Response(ResponseType.Error);
+                    }
+                }
+            }
+            return new Response(ResponseType.Success);
         }
     }
 }

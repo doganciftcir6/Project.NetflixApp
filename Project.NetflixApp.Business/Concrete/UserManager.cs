@@ -64,36 +64,36 @@ namespace Project.NetflixApp.Business.Concrete
             }
             return new DataResponse<GetUserDto>(ResponseType.NotFound, $"The related user could not be found. User Id:");
         }
-
-        public async Task<IResponse> InsertAsync(CreateUserDto createUserDto)
+        public async Task<IDataResponse<GetUserDto>> GetByEmailAsync(string email)
         {
-            var validationResponse = _createUserDtoValidator.Validate(createUserDto);
-            if (validationResponse.IsValid)
+            var entityData = await _userRepository.GetByFilterAsync(x => x.Email == email);
+            if(entityData != null)
             {
-                var mappingEntity = _mapper.Map<User>(createUserDto);
-                await _userRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The user adding process has been successfully completed.");
+                var mappingDto = _mapper.Map<GetUserDto>(entityData);
+                return new DataResponse<GetUserDto>(ResponseType.Success, mappingDto);
             }
-            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
+            return new DataResponse<GetUserDto>(ResponseType.NotFound, "No user with the related email address could be found.");
         }
-
-        public async Task<IResponse> RegisterAsync(RegisterUserDto registerUserDto)
+        public async Task<IResponse> UserEmailExistAsync(string email)
         {
-            var validationResponse = _registerUserDtoValidator.Validate(registerUserDto);
-            if (validationResponse.IsValid)
+            var entityData = await _userRepository.GetByFilterAsync(x => x.Email == email);
+            if(entityData != null)
             {
-                byte[] passwordHash, passwordSalt;
-                //hashleme işlemi burda yapılsın
-                //değişmiş veriyi burda out ile tekrar yakalıyoruz. bu sayede void metotta değişmiş verileri geri yakalayarak mapleme yapabiliyorum.
-                HashingHelper.CreatePassword(registerUserDto.Password, out passwordHash, out passwordSalt);
-
-                var mappingEntity = _mapper.Map<User>(registerUserDto);
-                mappingEntity.PasswordHash = passwordHash;
-                mappingEntity.PasswordSalt = passwordSalt;
-                await _userRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The user register process has been successfully completed.");
+                return new Response(ResponseType.Error);
             }
-            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
+            return new Response(ResponseType.Success);
+        }
+        public async Task CreateUserAsync(RegisterUserDto registerUserDto)
+        {
+            byte[] passwordHash, passwordSalt;
+            //hashleme işlemi burda yapılsın
+            //değişmiş veriyi burda out ile tekrar yakalıyoruz. bu sayede void metotta değişmiş verileri geri yakalayarak mapleme yapabiliyorum.
+            HashingHelper.CreatePassword(registerUserDto.Password, out passwordHash, out passwordSalt);
+
+            var mappingEntity = _mapper.Map<User>(registerUserDto);
+            mappingEntity.PasswordHash = passwordHash;
+            mappingEntity.PasswordSalt = passwordSalt;
+            await _userRepository.InsertAsync(mappingEntity);
         }
 
         public async Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto)

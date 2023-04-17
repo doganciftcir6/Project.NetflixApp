@@ -21,6 +21,7 @@ namespace Project.NetflixApp.Business.Validations.FluentValidation.UserValidatio
             RuleFor(x => x.Email).NotEmpty().WithMessage("Email field cannot be empty!");
             RuleFor(x => x.Email).MaximumLength(300).WithMessage("Email field can be a max of 300 characters!");
             RuleFor(x => x.Email).MinimumLength(3).WithMessage("Email field must be a min of 3 characters!");
+            RuleFor(x => x.Email).EmailAddress().WithMessage("You need to enter an information in email format into the email field!");
             RuleFor(p => p.Password).NotEmpty().WithMessage("Şifre boş olamaz");
             RuleFor(p => p.Password).MinimumLength(6).WithMessage("Password field must be a min of 6 characters!");
             RuleFor(x => x.Password).MaximumLength(20).WithMessage("Password field can be a max of 20 characters!");
