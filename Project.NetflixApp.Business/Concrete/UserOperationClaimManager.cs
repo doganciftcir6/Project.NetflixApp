@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Common.Enums;
@@ -49,9 +50,29 @@ namespace Project.NetflixApp.Business.Concrete
             return new DataResponse<IEnumerable<GetUserOperationClaimDto>>(ResponseType.Success, mappingDto);
         }
 
+        public async Task<IDataResponse<IEnumerable<GetUserOperationClaimDto>>> GetAllWithRelationsAsync()
+        {
+            var query = _userOperationClaimRepository.GetQuery();
+            var entityData = await query.AsNoTracking().Include(x => x.User).ThenInclude(x => x.Gender).Include(x => x.OperationClaim).ToListAsync();
+            var mappingDto = _mapper.Map<IEnumerable<GetUserOperationClaimDto>>(entityData);
+            return new DataResponse<IEnumerable<GetUserOperationClaimDto>>(ResponseType.Success, mappingDto);
+        }
+
         public async Task<IDataResponse<GetUserOperationClaimDto>> GetByIdAsync(int id)
         {
             var entityData = await _userOperationClaimRepository.GetByFilterAsync(x => x.Id == id);
+            if (entityData != null)
+            {
+                var mappingDto = _mapper.Map<GetUserOperationClaimDto>(entityData);
+                return new DataResponse<GetUserOperationClaimDto>(ResponseType.Success, mappingDto);
+            }
+            return new DataResponse<GetUserOperationClaimDto>(ResponseType.NotFound, $"The related useroperationclaim could not be found. Useroperationclaim Id:");
+        }
+
+        public async Task<IDataResponse<GetUserOperationClaimDto>> GetByIdWithRelationsAsync(int id)
+        {
+            var query = _userOperationClaimRepository.GetQuery();
+            var entityData = await query.Where(x => x.Id == id).Include(x => x.User).ThenInclude(x => x.Gender).Include(x => x.OperationClaim).FirstOrDefaultAsync();
             if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetUserOperationClaimDto>(entityData);

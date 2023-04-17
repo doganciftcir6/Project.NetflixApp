@@ -16,6 +16,6 @@ namespace Project.NetflixApp.Business.Abstract
         Task<IDataResponse<IEnumerable<GetProductionCategoryDto>>> GetAllAsync();
         Task<IDataResponse<IEnumerable<GetProductionCategoryDto>>> GetAllWithRelationsAsync();
         Task<IDataResponse<GetProductionCategoryDto>> GetByIdAsync(int id);
-        Task<IDataResponse<GetProductionCategoryDto>> GetByIdWithReliationsAsync(int id);
+        Task<IDataResponse<GetProductionCategoryDto>> GetByIdWithRelationsAsync(int id);
     }
 }

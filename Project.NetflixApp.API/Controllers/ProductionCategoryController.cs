@@ -30,7 +30,7 @@ namespace Project.NetflixApp.API.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var productionCategoryResponse = await _productionCategoryService.GetByIdWithReliationsAsync(id);
+            var productionCategoryResponse = await _productionCategoryService.GetByIdWithRelationsAsync(id);
             if(productionCategoryResponse.ResponseType == ResponseType.NotFound)
             {
                 return NotFound(productionCategoryResponse.Message);

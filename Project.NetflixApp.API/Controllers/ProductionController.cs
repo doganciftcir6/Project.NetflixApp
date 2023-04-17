@@ -20,7 +20,7 @@ namespace Project.NetflixApp.API.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var productionResponse = await _productionService.GetAllWithReliationsAsync();
+            var productionResponse = await _productionService.GetAllWithRelationsAsync();
             if(productionResponse.ResponseType == ResponseType.Success)
             {
                 return Ok(productionResponse.Data);
@@ -30,7 +30,7 @@ namespace Project.NetflixApp.API.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var productionResponse = await _productionService.GetByIdWithReliationsAsync(id);
+            var productionResponse = await _productionService.GetByIdWithRelationsAsync(id);
             if(productionResponse.ResponseType == ResponseType.NotFound)
             {
                 return NotFound(productionResponse.Message);

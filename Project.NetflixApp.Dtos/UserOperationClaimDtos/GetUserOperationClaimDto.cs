@@ -13,7 +13,7 @@ namespace Project.NetflixApp.Dtos.UserOperationClaimDtos
         public int Id { get; set; }
 
         public int UserId { get; set; }
-        public GetUserDto User { get; set; }
+        public GetUserWithoutPasswordDto User { get; set; }
         public int OperationClaimId { get; set; }
         public GetOperationClaimDto OperationClaim { get; set; }
     }

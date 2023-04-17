@@ -51,7 +51,7 @@ namespace Project.NetflixApp.Business.Concrete
             return new DataResponse<IEnumerable<GetProductionDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<IDataResponse<IEnumerable<GetProductionDto>>> GetAllWithReliationsAsync()
+        public async Task<IDataResponse<IEnumerable<GetProductionDto>>> GetAllWithRelationsAsync()
         {
             var query = _productionRepository.GetQuery();
             var data = await query.AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).ThenInclude(x => x.Gender).ToListAsync();
@@ -70,7 +70,7 @@ namespace Project.NetflixApp.Business.Concrete
             return new DataResponse<GetProductionDto>(ResponseType.NotFound, $"The related production could not be found. Production Id:");
         }
 
-        public async Task<IDataResponse<GetProductionDto>> GetByIdWithReliationsAsync(int id)
+        public async Task<IDataResponse<GetProductionDto>> GetByIdWithRelationsAsync(int id)
         {
             var query = _productionRepository.GetQuery();
             var entityData = await query.Where(x => x.Id == id).AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).ThenInclude(x => x.Gender).FirstOrDefaultAsync();

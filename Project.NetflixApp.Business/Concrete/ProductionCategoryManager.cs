@@ -70,7 +70,7 @@ namespace Project.NetflixApp.Business.Concrete
             return new DataResponse<GetProductionCategoryDto>(ResponseType.NotFound, $"The related productioncategory could not be found. Productioncategory Id:");
         }
 
-        public async Task<IDataResponse<GetProductionCategoryDto>> GetByIdWithReliationsAsync(int id)
+        public async Task<IDataResponse<GetProductionCategoryDto>> GetByIdWithRelationsAsync(int id)
         {
             var query = _productionCategoryRepository.GetQuery();
             var entityData = await query.Where(x => x.Id == id).AsNoTracking().Include(x => x.Production).ThenInclude(x => x.TypeEntity).Include(x => x.Production).ThenInclude(x => x.Duraction).Include(x => x.Production).ThenInclude(x => x.Country).Include(X => X.Production).ThenInclude(x => x.Rating).Include(x => x.Category).FirstOrDefaultAsync();
