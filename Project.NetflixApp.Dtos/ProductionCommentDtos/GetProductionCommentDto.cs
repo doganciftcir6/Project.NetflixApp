@@ -15,8 +15,8 @@ namespace Project.NetflixApp.Dtos.ProductionCommentDtos
         public DateTime CreateDate { get; set; }
     
         public int UserId { get; set; }
-        public GetUserDto User { get; set; }
+        public GetUserWithoutPasswordDto User { get; set; }
         public int ProductionId { get; set; }
-        public GetProductionDto Production { get; set; }
+        public GetProductionForComment Production { get; set; }
     }
 }

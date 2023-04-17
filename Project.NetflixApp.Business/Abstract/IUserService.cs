@@ -13,8 +13,10 @@ namespace Project.NetflixApp.Business.Abstract
         Task CreateUserAsync(RegisterUserDto registerUserDto);
         Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto);
         Task<IResponse> DeleteAsync(int id);
-        Task<IDataResponse<IEnumerable<GetUserDto>>> GetAllAsync();
-        Task<IDataResponse<GetUserDto>> GetByIdAsync(int id);
+        Task<IDataResponse<IEnumerable<GetUserWithoutPasswordDto>>> GetAllAsync();
+        Task<IDataResponse<IEnumerable<GetUserWithoutPasswordDto>>> GetAllWithGenderAsync();
+        Task<IDataResponse<GetUserWithoutPasswordDto>> GetByIdAsync(int id);
+        Task<IDataResponse<GetUserWithoutPasswordDto>> GetByIdWithGenderAsync(int id);
         Task<IDataResponse<GetUserDto>> GetByEmailAsync(string email);
         Task<IResponse> UserEmailExistAsync(string email);
     }

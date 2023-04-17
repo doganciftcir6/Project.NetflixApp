@@ -20,7 +20,7 @@ namespace Project.NetflixApp.API.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var userResponse = await _userService.GetAllAsync();
+            var userResponse = await _userService.GetAllWithGenderAsync();
             if(userResponse.ResponseType == ResponseType.Success)
             {
                 return Ok(userResponse.Data);
@@ -30,7 +30,7 @@ namespace Project.NetflixApp.API.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var userResponse = await _userService.GetByIdAsync(id);
+            var userResponse = await _userService.GetByIdWithGenderAsync(id);
             if(userResponse.ResponseType == ResponseType.NotFound)
             {
                 return NotFound(userResponse.Message);

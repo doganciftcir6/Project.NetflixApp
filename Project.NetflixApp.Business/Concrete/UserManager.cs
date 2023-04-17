@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Common.Enums;
@@ -47,27 +48,45 @@ namespace Project.NetflixApp.Business.Concrete
             return new Response(ResponseType.NotFound, "The user parameter could not be deleted because the user could not be found.");
         }
 
-        public async Task<IDataResponse<IEnumerable<GetUserDto>>> GetAllAsync()
+        public async Task<IDataResponse<IEnumerable<GetUserWithoutPasswordDto>>> GetAllAsync()
         {
             var entityData = await _userRepository.GetAllAsync();
-            var mappingDto = _mapper.Map<IEnumerable<GetUserDto>>(entityData);
-            return new DataResponse<IEnumerable<GetUserDto>>(ResponseType.Success, mappingDto);
+            var mappingDto = _mapper.Map<IEnumerable<GetUserWithoutPasswordDto>>(entityData);
+            return new DataResponse<IEnumerable<GetUserWithoutPasswordDto>>(ResponseType.Success, mappingDto);
+        }
+        public async Task<IDataResponse<IEnumerable<GetUserWithoutPasswordDto>>> GetAllWithGenderAsync()
+        {
+            var query = _userRepository.GetQuery();
+            var entityData = await query.AsNoTracking().Include(x => x.Gender).ToListAsync();
+            var mappingDto = _mapper.Map<IEnumerable<GetUserWithoutPasswordDto>>(entityData);
+            return new DataResponse<IEnumerable<GetUserWithoutPasswordDto>>(ResponseType.Success, mappingDto);
         }
 
-        public async Task<IDataResponse<GetUserDto>> GetByIdAsync(int id)
+        public async Task<IDataResponse<GetUserWithoutPasswordDto>> GetByIdAsync(int id)
         {
             var entityData = await _userRepository.GetByFilterAsync(x => x.Id == id);
             if (entityData != null)
             {
-                var mappingDto = _mapper.Map<GetUserDto>(entityData);
-                return new DataResponse<GetUserDto>(ResponseType.Success, mappingDto);
+                var mappingDto = _mapper.Map<GetUserWithoutPasswordDto>(entityData);
+                return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetUserDto>(ResponseType.NotFound, $"The related user could not be found. User Id:");
+            return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.NotFound, $"The related user could not be found. User Id:");
+        }
+        public async Task<IDataResponse<GetUserWithoutPasswordDto>> GetByIdWithGenderAsync(int id)
+        {
+            var query = _userRepository.GetQuery();
+            var entityData = await query.Where(x => x.Id == id).Include(x => x.Gender).FirstOrDefaultAsync();
+            if (entityData != null)
+            {
+                var mappingDto = _mapper.Map<GetUserWithoutPasswordDto>(entityData);
+                return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.Success, mappingDto);
+            }
+            return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.NotFound, $"The related user could not be found. User Id:");
         }
         public async Task<IDataResponse<GetUserDto>> GetByEmailAsync(string email)
         {
             var entityData = await _userRepository.GetByFilterAsync(x => x.Email == email);
-            if(entityData != null)
+            if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetUserDto>(entityData);
                 return new DataResponse<GetUserDto>(ResponseType.Success, mappingDto);
@@ -77,7 +96,7 @@ namespace Project.NetflixApp.Business.Concrete
         public async Task<IResponse> UserEmailExistAsync(string email)
         {
             var entityData = await _userRepository.GetByFilterAsync(x => x.Email == email);
-            if(entityData != null)
+            if (entityData != null)
             {
                 return new Response(ResponseType.Error);
             }

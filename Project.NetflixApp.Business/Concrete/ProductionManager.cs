@@ -54,7 +54,7 @@ namespace Project.NetflixApp.Business.Concrete
         public async Task<IDataResponse<IEnumerable<GetProductionDto>>> GetAllWithReliationsAsync()
         {
             var query = _productionRepository.GetQuery();
-            var data = await query.AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).ToListAsync();
+            var data = await query.AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).ThenInclude(x => x.Gender).ToListAsync();
             var mappingDto = _mapper.Map<IEnumerable<GetProductionDto>>(data);
             return new DataResponse<IEnumerable<GetProductionDto>>(ResponseType.Success, mappingDto);
         }
@@ -73,7 +73,7 @@ namespace Project.NetflixApp.Business.Concrete
         public async Task<IDataResponse<GetProductionDto>> GetByIdWithReliationsAsync(int id)
         {
             var query = _productionRepository.GetQuery();
-            var entityData = await query.Where(x => x.Id == id).AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).FirstOrDefaultAsync();
+            var entityData = await query.Where(x => x.Id == id).AsNoTracking().Include(x => x.TypeEntity).Include(x => x.Country).Include(x => x.Rating).Include(x => x.Duraction).Include(x => x.ProductionCategories).ThenInclude(x => x.Category).Include(x => x.ProductionComments).ThenInclude(x => x.User).ThenInclude(x => x.Gender).FirstOrDefaultAsync();
             if (entityData != null)
             {
                 var mappingDto = _mapper.Map<GetProductionDto>(entityData);
