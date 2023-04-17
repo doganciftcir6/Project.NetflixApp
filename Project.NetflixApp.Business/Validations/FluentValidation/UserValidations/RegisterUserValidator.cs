@@ -28,7 +28,6 @@ namespace Project.NetflixApp.Business.Validations.FluentValidation.UserValidatio
             RuleFor(p => p.Password).Matches("[a-z]").WithMessage("The password must contain at least 1 lowercase letter!");
             RuleFor(p => p.Password).Matches("[0-9]").WithMessage("The password must contain at least 1 digit/number!");
             RuleFor(p => p.Password).Matches("[^a-zA-Z0-9]").WithMessage("The password must contain at least 1 special character!");
-            RuleFor(x => x.ImageUrl.FileName).NotEmpty().WithMessage("ImageUrl field cannot be empty!");
             RuleFor(x => x.GenderId).NotEmpty().WithMessage("GenderId field cannot be empty!");
         }
     }

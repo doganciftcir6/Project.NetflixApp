@@ -17,6 +17,7 @@ namespace Project.NetflixApp.Business.Mapping.AutoMapper
             CreateMap<User, UpdateUserDto>().ReverseMap();
             CreateMap<User, GetUserDto>().ReverseMap();
             CreateMap<User, LoginUserDto>().ReverseMap();
+            CreateMap<User, RegisterUserDto>().ReverseMap();
         }
     }
 }

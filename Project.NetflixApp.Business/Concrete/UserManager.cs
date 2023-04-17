@@ -3,6 +3,7 @@ using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Hashing;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
@@ -22,13 +23,17 @@ namespace Project.NetflixApp.Business.Concrete
         private readonly IMapper _mapper;
         private readonly IValidator<CreateUserDto> _createUserDtoValidator;
         private readonly IValidator<UpdateUserDto> _updateUserDtoValidator;
+        private readonly IValidator<RegisterUserDto> _registerUserDtoValidator;
+        private readonly IValidator<LoginUserDto> _loginUserDtoValidator;
 
-        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator)
+        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _createUserDtoValidator = createUserDtoValidator;
             _updateUserDtoValidator = updateUserDtoValidator;
+            _registerUserDtoValidator = registerUserDtoValidator;
+            _loginUserDtoValidator = loginUserDtoValidator;
         }
 
         public async Task<IResponse> DeleteAsync(int id)
@@ -68,6 +73,25 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingEntity = _mapper.Map<User>(createUserDto);
                 await _userRepository.InsertAsync(mappingEntity);
                 return new Response(ResponseType.Success, "The user adding process has been successfully completed.");
+            }
+            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
+        }
+
+        public async Task<IResponse> RegisterAsync(RegisterUserDto registerUserDto)
+        {
+            var validationResponse = _registerUserDtoValidator.Validate(registerUserDto);
+            if (validationResponse.IsValid)
+            {
+                byte[] passwordHash, passwordSalt;
+                //hashleme işlemi burda yapılsın
+                //değişmiş veriyi burda out ile tekrar yakalıyoruz. bu sayede void metotta değişmiş verileri geri yakalayarak mapleme yapabiliyorum.
+                HashingHelper.CreatePassword(registerUserDto.Password, out passwordHash, out passwordSalt);
+
+                var mappingEntity = _mapper.Map<User>(registerUserDto);
+                mappingEntity.PasswordHash = passwordHash;
+                mappingEntity.PasswordSalt = passwordSalt;
+                await _userRepository.InsertAsync(mappingEntity);
+                return new Response(ResponseType.Success, "The user register process has been successfully completed.");
             }
             return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }

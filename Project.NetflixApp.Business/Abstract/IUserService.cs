@@ -11,6 +11,7 @@ namespace Project.NetflixApp.Business.Abstract
     public interface IUserService
     {
         Task<IResponse> InsertAsync(CreateUserDto createUserDto);
+        Task<IResponse> RegisterAsync(RegisterUserDto registerUserDto);
         Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto);
         Task<IResponse> DeleteAsync(int id);
         Task<IDataResponse<IEnumerable<GetUserDto>>> GetAllAsync();
