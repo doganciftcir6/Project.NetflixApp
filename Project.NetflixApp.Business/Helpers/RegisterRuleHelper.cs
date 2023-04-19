@@ -30,7 +30,7 @@ namespace Project.NetflixApp.Business.Helpers
             var emailResponse = await _userService.UserEmailExistAsync(email);
             if(emailResponse.ResponseType == ResponseType.Error)
             {
-                return new Response(ResponseType.Error, "This email address has already been used. Please use a different email address.");
+                return new Response(ResponseType.Error, "This email address has already been used. Please use a different email address^");
             }
             return new Response(ResponseType.Success);
         }

@@ -68,7 +68,11 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 IResponse userInfChecks = ErrorsEngineHelper.Run
                 (
-                   await RegisterRuleHelper.CreateInstance(_userService).CheckEmailExists(registerUserDto.Email)
+                   await RegisterRuleHelper.CreateInstance(_userService).CheckEmailExists(registerUserDto.Email),
+                   UserUploadSecurityHelper.CheckIfImageExtensionsAllow(registerUserDto.ImageUrl.FileName),
+                   UserUploadSecurityHelper.CheckImageNameDot(registerUserDto.ImageUrl),
+                   UserUploadSecurityHelper.CheckImageName(registerUserDto.ImageUrl.FileName),
+                   UserUploadSecurityHelper.CheckIfImageSizeIsLessThanOneMb(registerUserDto.ImageUrl.Length)
                 );
                 if (userInfChecks.ResponseType == ResponseType.Success)
                 {
