@@ -23,4 +23,8 @@
     <ProjectReference Include="..\Project.NetflixApp.Common\Project.NetflixApp.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\UserImage\" />
+  </ItemGroup>
+
 </Project>

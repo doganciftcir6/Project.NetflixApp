@@ -12,6 +12,7 @@ using Project.NetflixApp.Dtos.UserDtos;
 using Project.NetflixApp.Entities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -122,6 +123,12 @@ namespace Project.NetflixApp.Business.Concrete
             HashingHelper.CreatePassword(registerUserDto.Password, out passwordHash, out passwordSalt);
 
             var mappingEntity = _mapper.Map<User>(registerUserDto);
+            //upload sql tablo ataması
+            if (registerUserDto.ImageUrl != null)
+            {
+                var createSqlName = Path.GetFileNameWithoutExtension(registerUserDto.ImageUrl.FileName) + Path.GetExtension(registerUserDto.ImageUrl.FileName);
+                mappingEntity.ImageUrl = createSqlName;
+            }
             mappingEntity.PasswordHash = passwordHash;
             mappingEntity.PasswordSalt = passwordSalt;
             await _userRepository.InsertAsync(mappingEntity);

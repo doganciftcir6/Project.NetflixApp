@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Hosting;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Business.Helpers;
@@ -13,6 +14,7 @@ using Project.NetflixApp.Dtos.UserDtos;
 using Project.NetflixApp.Entities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,11 +26,13 @@ namespace Project.NetflixApp.Business.Concrete
         private readonly IUserService _userService;
         private readonly IValidator<RegisterUserDto> _registerUserDtoValidator;
         private readonly IValidator<LoginUserDto> _loginUserDtoValidator;
-        public AuthManager(IUserService userService, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator)
+        private readonly IHostingEnvironment _hostingEnvironment;
+        public AuthManager(IUserService userService, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator, IHostingEnvironment hostingEnvironment)
         {
             _userService = userService;
             _registerUserDtoValidator = registerUserDtoValidator;
             _loginUserDtoValidator = loginUserDtoValidator;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<IDataResponse<TokenResponseDto>> LoginAsync(LoginUserDto loginUserDto)
@@ -66,6 +70,17 @@ namespace Project.NetflixApp.Business.Concrete
                 );
                 if (userInfChecks.ResponseType == ResponseType.Success)
                 {
+                    //upload
+                    if (registerUserDto.ImageUrl != null)
+                    {
+                        var fileName = Guid.NewGuid().ToString();
+                        var extName = Path.GetExtension(registerUserDto.ImageUrl.FileName);
+                        string path = Path.Combine(_hostingEnvironment.WebRootPath, "UserImage", fileName + extName);
+                        var stream = new FileStream(path, FileMode.Create);
+                        await registerUserDto.ImageUrl.CopyToAsync(stream);
+                        stream.Close();
+                    }
+
                     await _userService.CreateUserAsync(registerUserDto);
                     return new Response(ResponseType.Success, "The user adding process has been successfully completed.");
                 }

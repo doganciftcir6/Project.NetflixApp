@@ -19,7 +19,7 @@ namespace Project.NetflixApp.API.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> RegisterAsync(RegisterUserDto registerUserDto)
+        public async Task<IActionResult> RegisterAsync([FromForm]RegisterUserDto registerUserDto)
         {
             var registerResponse = await _authService.RegisterAsync(registerUserDto);
             if(registerResponse.ResponseType == ResponseType.ValidationError)

@@ -52,6 +52,9 @@ namespace Project.NetflixApp.API
 
             app.UseHttpsRedirection();
 
+            //wwwroot
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             //user iþlemleri için
