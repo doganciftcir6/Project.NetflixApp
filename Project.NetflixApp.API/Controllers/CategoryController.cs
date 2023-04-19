@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Common.Enums;
@@ -18,6 +19,7 @@ namespace Project.NetflixApp.API.Controllers
             _categoryService = categoryService;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("[action]")]
         public async Task<IActionResult> GetAllAsync()
         {

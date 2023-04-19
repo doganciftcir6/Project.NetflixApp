@@ -21,13 +21,14 @@ namespace Project.NetflixApp.Business.Concrete
     public class UserManager : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserOperationClaimRepository _userOperationClaimRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<CreateUserDto> _createUserDtoValidator;
         private readonly IValidator<UpdateUserDto> _updateUserDtoValidator;
         private readonly IValidator<RegisterUserDto> _registerUserDtoValidator;
         private readonly IValidator<LoginUserDto> _loginUserDtoValidator;
 
-        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator)
+        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator, IUserOperationClaimRepository userOperationClaimRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -35,6 +36,7 @@ namespace Project.NetflixApp.Business.Concrete
             _updateUserDtoValidator = updateUserDtoValidator;
             _registerUserDtoValidator = registerUserDtoValidator;
             _loginUserDtoValidator = loginUserDtoValidator;
+            _userOperationClaimRepository = userOperationClaimRepository;
         }
 
         public async Task<IResponse> DeleteAsync(int id)
@@ -92,6 +94,16 @@ namespace Project.NetflixApp.Business.Concrete
                 return new DataResponse<GetUserDto>(ResponseType.Success, mappingDto);
             }
             return new DataResponse<GetUserDto>(ResponseType.NotFound, "No user with the related email address could be found.");
+        }
+        public async Task<List<OperationClaim>> GetUserOperationClaims(int userId)
+        {
+            var query = _userOperationClaimRepository.GetQuery();
+            var data = await query.Include(x => x.OperationClaim).Where(x => x.UserId == userId).Select(x => x.OperationClaim).ToListAsync();
+            if (data != null)
+            {
+                return data;
+            }
+            return null;
         }
         public async Task<IResponse> UserEmailExistAsync(string email)
         {

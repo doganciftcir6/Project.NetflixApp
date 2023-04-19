@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Concrete;
 using Project.NetflixApp.Business.Mapping.AutoMapper;
@@ -20,6 +22,7 @@ using Project.NetflixApp.Business.Validations.FluentValidation.RatingValidations
 using Project.NetflixApp.Business.Validations.FluentValidation.TypeEntityValidations;
 using Project.NetflixApp.Business.Validations.FluentValidation.UserOperationClaimValidations;
 using Project.NetflixApp.Business.Validations.FluentValidation.UserValidations;
+using Project.NetflixApp.Common.Utilities.Security.JWT;
 using Project.NetflixApp.DataAccess.Contexts.EntityFramework;
 using Project.NetflixApp.DataAccess.Repositories.Abstract;
 using Project.NetflixApp.DataAccess.Repositories.Concrete;
@@ -128,6 +131,22 @@ namespace Project.NetflixApp.Business.DependencyResolvers.Microsoft
             //automapperı projeye kaydet.
             var mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);
+
+            //JWT register (Auto şema)
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+            {
+                //bunun true olması önerilir şimdilik false.
+                opt.RequireHttpsMetadata = false;
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = JwtTokenDefaults.ValidIssuer,
+                    ValidAudience = JwtTokenDefaults.ValidAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtTokenDefaults.Key)),
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                };
+            });
         }
     }
 }

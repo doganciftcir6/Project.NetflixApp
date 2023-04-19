@@ -25,6 +25,9 @@ namespace Project.NetflixApp.Common.Utilities.Results.Concrete
             Data = data;
             CustomValidationErrors = errors;
         }
-
+        public DataResponse(ResponseType responseType, List<CustomValidationErrors> errors) : base(responseType)
+        {
+            CustomValidationErrors = errors;
+        }
     }
 }

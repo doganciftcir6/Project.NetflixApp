@@ -7,6 +7,8 @@ using Project.NetflixApp.Common.Utilities.ErrorsEngine;
 using Project.NetflixApp.Common.Utilities.Hashing;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
+using Project.NetflixApp.Common.Utilities.Security.JWT;
+using Project.NetflixApp.Dtos.TokenDtos;
 using Project.NetflixApp.Dtos.UserDtos;
 using Project.NetflixApp.Entities;
 using System;
@@ -29,7 +31,7 @@ namespace Project.NetflixApp.Business.Concrete
             _loginUserDtoValidator = loginUserDtoValidator;
         }
 
-        public async Task<IResponse> LoginAsync(LoginUserDto loginUserDto)
+        public async Task<IDataResponse<TokenResponseDto>> LoginAsync(LoginUserDto loginUserDto)
         {
             var validationResponse = _loginUserDtoValidator.Validate(loginUserDto);
             if (validationResponse.IsValid)
@@ -41,15 +43,16 @@ namespace Project.NetflixApp.Business.Concrete
                     var passwordResponse = HashingHelper.VerifyPasswordHash(loginUserDto.Password, userResponse.Data.PasswordHash, userResponse.Data.PasswordSalt);
                     if (passwordResponse.ResponseType == ResponseType.Success)
                     {
-                        return new Response(ResponseType.Success, "User login success.");
+                        var token = JwtTokenGenerator.GenerateToken(userResponse.Data, await _userService.GetUserOperationClaims(userResponse.Data.Id));
+                        return new DataResponse<TokenResponseDto>(ResponseType.Success, token);
                     }
                     //şifre uymuyor
-                    return new Response(ResponseType.Error, "Incorrect password entered.");
+                    return new DataResponse<TokenResponseDto>(ResponseType.Error, "Incorrect password entered.");
                 }
                 //email uymuyor
-                return new Response(ResponseType.Error, "Incorrect email entered");
+                return new DataResponse<TokenResponseDto>(ResponseType.Error, "Incorrect email entered");
             }
-            return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
+            return new DataResponse<TokenResponseDto>(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
 
         public async Task<IResponse> RegisterAsync(RegisterUserDto registerUserDto)

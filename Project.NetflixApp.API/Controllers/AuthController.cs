@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.Security.JWT;
 using Project.NetflixApp.Dtos.UserDtos;
 using System.Threading.Tasks;
 
@@ -45,7 +46,8 @@ namespace Project.NetflixApp.API.Controllers
             {
                 return BadRequest(loginResponse.CustomValidationErrors);
             }
-            return Ok(loginResponse.Message);
+            //jwtden sonra login işlemi sonucunda artık mesaj dönmek yerine bir token dönücem.
+            return Created("", loginResponse.Data);
         }
     }
 }
