@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Internal;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Business.Helpers;
+using Project.NetflixApp.Business.Helpers.UserUploadHelpers;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.ErrorsEngine;
 using Project.NetflixApp.Common.Utilities.Hashing;
@@ -73,12 +75,7 @@ namespace Project.NetflixApp.Business.Concrete
                     //upload
                     if (registerUserDto.ImageUrl != null)
                     {
-                        var fileName = Guid.NewGuid().ToString();
-                        var extName = Path.GetExtension(registerUserDto.ImageUrl.FileName);
-                        string path = Path.Combine(_hostingEnvironment.WebRootPath, "UserImage", fileName + extName);
-                        var stream = new FileStream(path, FileMode.Create);
-                        await registerUserDto.ImageUrl.CopyToAsync(stream);
-                        stream.Close();
+                        await UploadUserHelper.CreateInstance(_hostingEnvironment).Upload(registerUserDto.ImageUrl);
                     }
 
                     await _userService.CreateUserAsync(registerUserDto);
