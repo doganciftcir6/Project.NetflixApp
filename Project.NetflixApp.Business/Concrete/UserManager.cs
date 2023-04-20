@@ -127,7 +127,7 @@ namespace Project.NetflixApp.Business.Concrete
             }
             return new Response(ResponseType.Success);
         }
-        public async Task CreateUserAsync(RegisterUserDto registerUserDto)
+        public async Task CreateUserAsync(RegisterUserDto registerUserDto, int roleId)
         {
             byte[] passwordHash, passwordSalt;
             //hashleme işlemi burda yapılsın
@@ -144,6 +144,11 @@ namespace Project.NetflixApp.Business.Concrete
             mappingEntity.PasswordHash = passwordHash;
             mappingEntity.PasswordSalt = passwordSalt;
             await _userRepository.InsertAsync(mappingEntity);
+            await _userOperationClaimRepository.InsertAsync(new UserOperationClaim()
+            {
+                User = mappingEntity,
+                OperationClaimId = roleId
+            });
         }
 
         public async Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto)

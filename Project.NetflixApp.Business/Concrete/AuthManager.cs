@@ -82,7 +82,7 @@ namespace Project.NetflixApp.Business.Concrete
                         await UploadUserHelper.CreateInstance(_hostingEnvironment).Upload(registerUserDto.ImageUrl);
                     }
 
-                    await _userService.CreateUserAsync(registerUserDto);
+                    await _userService.CreateUserAsync(registerUserDto, (int)RoleType.Member);
                     return new Response(ResponseType.Success, "The user adding process has been successfully completed.");
                 }
                 else
