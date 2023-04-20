@@ -27,7 +27,7 @@ namespace Project.NetflixApp.Business.Helpers.UserUploadHelpers
 
         public async Task Upload(IFormFile file)
         {
-            var fileName = Guid.NewGuid().ToString();
+            var fileName = Path.GetFileNameWithoutExtension(file.FileName) + DateTime.UtcNow.Minute + DateTime.UtcNow.Second;
             var extName = Path.GetExtension(file.FileName);
             string path = Path.Combine(_hostingEnvironment.WebRootPath, "UserImage", fileName + extName);
             var stream = new FileStream(path, FileMode.Create);

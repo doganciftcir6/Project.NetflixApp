@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.UserUploadHelpers;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Hashing;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
@@ -28,8 +30,9 @@ namespace Project.NetflixApp.Business.Concrete
         private readonly IValidator<UpdateUserDto> _updateUserDtoValidator;
         private readonly IValidator<RegisterUserDto> _registerUserDtoValidator;
         private readonly IValidator<LoginUserDto> _loginUserDtoValidator;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator, IUserOperationClaimRepository userOperationClaimRepository)
+        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator, IUserOperationClaimRepository userOperationClaimRepository, IHostingEnvironment hostingEnvironment)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -38,14 +41,23 @@ namespace Project.NetflixApp.Business.Concrete
             _registerUserDtoValidator = registerUserDtoValidator;
             _loginUserDtoValidator = loginUserDtoValidator;
             _userOperationClaimRepository = userOperationClaimRepository;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<IResponse> DeleteAsync(int id)
         {
+            var dtoData = await GetByIdAsync(id);
+
             var data = await _userRepository.GetByIdAsync(id);
             if (data != null)
             {
                 await _userRepository.DeleteAsync(data);
+                //silme işlemi sonrasında kişinin upload dosyasınıda serverdan silelim.
+                if (dtoData != null)
+                {
+                    var helperClass = new FileRemoveFromServerHelper(_hostingEnvironment);
+                    helperClass.DeleteFileRun(dtoData.Data.ImageUrl);
+                }
                 return new Response(ResponseType.Success, "The user was successfully deleted");
             }
             return new Response(ResponseType.NotFound, "The user parameter could not be deleted because the user could not be found.");
@@ -126,7 +138,7 @@ namespace Project.NetflixApp.Business.Concrete
             //upload sql tablo ataması
             if (registerUserDto.ImageUrl != null)
             {
-                var createSqlName = Path.GetFileNameWithoutExtension(registerUserDto.ImageUrl.FileName) + Path.GetExtension(registerUserDto.ImageUrl.FileName);
+                var createSqlName = Path.GetFileNameWithoutExtension(registerUserDto.ImageUrl.FileName) + DateTime.UtcNow.Minute + DateTime.UtcNow.Second + Path.GetExtension(registerUserDto.ImageUrl.FileName);
                 mappingEntity.ImageUrl = createSqlName;
             }
             mappingEntity.PasswordHash = passwordHash;
