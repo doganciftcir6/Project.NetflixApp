@@ -161,6 +161,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var validationResponse = _updateProductionCommentDtoValidator.Validate(updateProductionCommentDto);
                 if (validationResponse.IsValid)
                 {
+                    updateProductionCommentDto.CreateDate = oldData.CreateDate;
                     var mappingEntity = _mapper.Map<ProductionComment>(updateProductionCommentDto);
                     await _productionCommentRepository.UpdateAsync(mappingEntity);
                     return new Response(ResponseType.Success, "The productioncomment updating process has been successfully completed.");
