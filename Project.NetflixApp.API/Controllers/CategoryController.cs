@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Project.NetflixApp.API.Controllers
 {
+    [Authorize(Roles = "Admin, Member")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
