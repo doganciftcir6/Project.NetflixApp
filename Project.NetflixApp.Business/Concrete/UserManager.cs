@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Business.Helpers.UserUploadHelpers;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Hashing;
@@ -58,9 +59,9 @@ namespace Project.NetflixApp.Business.Concrete
                     var helperClass = new FileRemoveFromServerHelper(_hostingEnvironment);
                     helperClass.DeleteFileRun(dtoData.Data.ImageUrl);
                 }
-                return new Response(ResponseType.Success, "The user was successfully deleted");
+                return new Response(ResponseType.Success, UserMessages.Deleted);
             }
-            return new Response(ResponseType.NotFound, "The user parameter could not be deleted because the user could not be found.");
+            return new Response(ResponseType.NotFound, UserMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetUserWithoutPasswordDto>>> GetAllAsync()
@@ -85,7 +86,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetUserWithoutPasswordDto>(entityData);
                 return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.NotFound, $"The related user could not be found. User Id:");
+            return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.NotFound, $"{UserMessages.NotFound}" + $"{id}");
         }
         public async Task<IDataResponse<GetUserWithoutPasswordDto>> GetByIdWithGenderAsync(int id)
         {
@@ -96,7 +97,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetUserWithoutPasswordDto>(entityData);
                 return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.NotFound, $"The related user could not be found. User Id:");
+            return new DataResponse<GetUserWithoutPasswordDto>(ResponseType.NotFound, $"{UserMessages.NotFound}" + $"{id}");
         }
         public async Task<IDataResponse<GetUserDto>> GetByEmailAsync(string email)
         {
@@ -106,7 +107,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetUserDto>(entityData);
                 return new DataResponse<GetUserDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetUserDto>(ResponseType.NotFound, "No user with the related email address could be found.");
+            return new DataResponse<GetUserDto>(ResponseType.NotFound, UserMessages.NotFoundEmail);
         }
         public async Task<List<OperationClaim>> GetUserOperationClaims(int userId)
         {
@@ -161,11 +162,11 @@ namespace Project.NetflixApp.Business.Concrete
                 {
                     var mappingEntity = _mapper.Map<User>(updateUserDto);
                     await _userRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The user updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, UserMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related user could not be found. So the update process could not be completed. User Id:");
+            return new Response(ResponseType.NotFound, $"{UserMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

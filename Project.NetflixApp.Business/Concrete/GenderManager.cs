@@ -2,6 +2,7 @@
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -37,9 +38,9 @@ namespace Project.NetflixApp.Business.Concrete
             if (data != null)
             {
                 await _genderRepository.DeleteAsync(data);
-                return new Response(ResponseType.Success, "The gender was successfully deleted");
+                return new Response(ResponseType.Success, GenderMessages.Deleted);
             }
-            return new Response(ResponseType.NotFound, "The gender parameter could not be deleted because the gender could not be found.");
+            return new Response(ResponseType.NotFound, GenderMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetGenderDto>>> GetAllAsync()
@@ -57,7 +58,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetGenderDto>(entityData);
                 return new DataResponse<GetGenderDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetGenderDto>(ResponseType.NotFound, $"The related gender could not be found. Gender Id:");
+            return new DataResponse<GetGenderDto>(ResponseType.NotFound, $"{GenderMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IResponse> InsertAsync(CreateGenderDto createGenderDto)
@@ -67,7 +68,7 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 var mappingEntity = _mapper.Map<Gender>(createGenderDto);
                 await _genderRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The gender adding process has been successfully completed.");
+                return new Response(ResponseType.Success, GenderMessages.Created);
             }
             return new Response(ResponseType.ValidationError, validationReponse.ConvertToCustomValidationError());
         }
@@ -82,11 +83,11 @@ namespace Project.NetflixApp.Business.Concrete
                 {
                     var mappingEntity = _mapper.Map<Gender>(updateGenderDto);
                     await _genderRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The gender updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, GenderMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related gender could not be found. So the update process could not be completed. Gender Id:");
+            return new Response(ResponseType.NotFound, $"{GenderMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

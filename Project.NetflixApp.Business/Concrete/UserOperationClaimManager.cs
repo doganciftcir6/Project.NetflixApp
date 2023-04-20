@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -38,9 +39,9 @@ namespace Project.NetflixApp.Business.Concrete
             if (data != null)
             {
                 await _userOperationClaimRepository.DeleteAsync(data);
-                return new Response(ResponseType.Success, "The useroperationclaim was successfully deleted");
+                return new Response(ResponseType.Success, UserOperationClaimMessages.Deleted);
             }
-            return new Response(ResponseType.NotFound, "The useroperationclaim parameter could not be deleted because the useroperationclaim could not be found.");
+            return new Response(ResponseType.NotFound, UserOperationClaimMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetUserOperationClaimDto>>> GetAllAsync()
@@ -66,7 +67,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetUserOperationClaimDto>(entityData);
                 return new DataResponse<GetUserOperationClaimDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetUserOperationClaimDto>(ResponseType.NotFound, $"The related useroperationclaim could not be found. Useroperationclaim Id:");
+            return new DataResponse<GetUserOperationClaimDto>(ResponseType.NotFound, $"{UserOperationClaimMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IDataResponse<GetUserOperationClaimDto>> GetByIdWithRelationsAsync(int id)
@@ -78,7 +79,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetUserOperationClaimDto>(entityData);
                 return new DataResponse<GetUserOperationClaimDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetUserOperationClaimDto>(ResponseType.NotFound, $"The related useroperationclaim could not be found. Useroperationclaim Id:");
+            return new DataResponse<GetUserOperationClaimDto>(ResponseType.NotFound, $"{UserOperationClaimMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IResponse> InsertAsync(CreateUserOperationClaimDto createUserOperationClaimDto)
@@ -88,7 +89,7 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 var mappingEntity = _mapper.Map<UserOperationClaim>(createUserOperationClaimDto);
                 await _userOperationClaimRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The useroperationclaim adding process has been successfully completed.");
+                return new Response(ResponseType.Success, UserOperationClaimMessages.Created);
             }
             return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
@@ -103,11 +104,11 @@ namespace Project.NetflixApp.Business.Concrete
                 {
                     var mappingEntity = _mapper.Map<UserOperationClaim>(updateUserOperationClaimDto);
                     await _userOperationClaimRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The useroperationclaim updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, UserOperationClaimMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related useroperationcliam could not be found. So the update process could not be completed. Useroperationclaim Id:");
+            return new Response(ResponseType.NotFound, $"{UserOperationClaimMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

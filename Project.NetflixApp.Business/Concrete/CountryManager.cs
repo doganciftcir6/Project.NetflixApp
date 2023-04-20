@@ -2,6 +2,7 @@
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -37,9 +38,9 @@ namespace Project.NetflixApp.Business.Concrete
             if (data != null)
             {
                 await _countryRepository.DeleteAsync(data);
-                return new Response(ResponseType.Success, "The country was successfully deleted");
+                return new Response(ResponseType.Success, CountryMessages.Deleted);
             }
-            return new Response(ResponseType.NotFound, "The country parameter could not be deleted because the country could not be found.");
+            return new Response(ResponseType.NotFound, CountryMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetCountryDto>>> GetAllAsync()
@@ -57,7 +58,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetCountryDto>(entityData);
                 return new DataResponse<GetCountryDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetCountryDto>(ResponseType.NotFound, $"The related country could not be found. Country Id:");
+            return new DataResponse<GetCountryDto>(ResponseType.NotFound, $"{CountryMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IResponse> InsertAsync(CreateCountryDto createCountryDto)
@@ -67,7 +68,7 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 var mappingEntity = _mapper.Map<Country>(createCountryDto);
                 await _countryRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The country adding process has been successfully completed.");
+                return new Response(ResponseType.Success, CountryMessages.Created);
             }
             return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
@@ -83,11 +84,11 @@ namespace Project.NetflixApp.Business.Concrete
 
                     var mappingEntity = _mapper.Map<Country>(updateCountryDto);
                     await _countryRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The country updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, CountryMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related country could not be found. So the update process could not be completed. Country Id:");
+            return new Response(ResponseType.NotFound, $"{CountryMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

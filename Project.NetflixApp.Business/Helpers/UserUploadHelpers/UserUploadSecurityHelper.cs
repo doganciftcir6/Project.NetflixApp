@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -21,7 +22,7 @@ namespace Project.NetflixApp.Business.Helpers.UserUploadHelpers
 
             if (!allowFileExtensions.Contains(extension))
             {
-                return new Response(ResponseType.Error, "The image you have uploaded must be one of the following file types: .jpg, .jpeg, .gif, .png^");
+                return new Response(ResponseType.Error, UserMessages.NotCheckIfImageExtensions);
             }
             return new Response(ResponseType.Success);
         }
@@ -30,7 +31,7 @@ namespace Project.NetflixApp.Business.Helpers.UserUploadHelpers
             decimal imgMbSize = Convert.ToDecimal(imageSize * 0.000001);
             if (imgMbSize > 1)
             {
-                return new Response(ResponseType.Error, "The size of the image you have uploaded must be less than 1 MB^");
+                return new Response(ResponseType.Error, UserMessages.NotCheckIfImageSizeIsLessThanOneMb);
             }
             return new Response(ResponseType.Success);
         }
@@ -38,7 +39,7 @@ namespace Project.NetflixApp.Business.Helpers.UserUploadHelpers
         {
             if (fileName.Contains("/") || fileName.Contains("<") || fileName.Contains(">") || fileName.Contains("%2F") || fileName.Contains("%5C"))
             {
-                return new Response(ResponseType.Error, "The name of the image you have uploaded cannot contain the characters /, <, >, %2F, %5C^");
+                return new Response(ResponseType.Error, UserMessages.NotCheckImageName);
             }
             return new Response(ResponseType.Success);
         }
@@ -47,7 +48,7 @@ namespace Project.NetflixApp.Business.Helpers.UserUploadHelpers
             var fileName = Path.GetFileNameWithoutExtension(file.FileName);
             if (fileName.Contains("."))
             {
-                return new Response(ResponseType.Error, "The name of the image you have uploaded cannot contain the character '.'^");
+                return new Response(ResponseType.Error, UserMessages.NotCheckImageNameDot);
             }
             return new Response(ResponseType.Success);
         }

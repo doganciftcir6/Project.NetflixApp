@@ -2,6 +2,7 @@
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -37,9 +38,9 @@ namespace Project.NetflixApp.Business.Concrete
             if (data != null)
             {
                 await _duractionRepository.DeleteAsync(data);
-                return new Response(ResponseType.Success, "The duraction was successfully deleted");
+                return new Response(ResponseType.Success, DuractionMessages.Deleted);
             }
-            return new Response(ResponseType.NotFound, "The duraction parameter could not be deleted because the duraction could not be found.");
+            return new Response(ResponseType.NotFound, DuractionMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetDuractionDto>>> GetAllAsync()
@@ -57,7 +58,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetDuractionDto>(entityData);
                 return new DataResponse<GetDuractionDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetDuractionDto>(ResponseType.NotFound, $"The related duraction could not be found. Duraction Id:");
+            return new DataResponse<GetDuractionDto>(ResponseType.NotFound, $"{DuractionMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IResponse> InsertAsync(CreateDuractionDto createDuractionDto)
@@ -67,7 +68,7 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 var mappingEntity = _mapper.Map<Duraction>(createDuractionDto);
                 await _duractionRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The duraction adding process has been successfully completed.");
+                return new Response(ResponseType.Success, DuractionMessages.Created);
             }
             return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
@@ -82,11 +83,11 @@ namespace Project.NetflixApp.Business.Concrete
                 {
                     var mappingEntity = _mapper.Map<Duraction>(updateDuractionDto);
                     await _duractionRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The duraction updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, DuractionMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related duraction could not be found. So the update process could not be completed. Duraction Id:");
+            return new Response(ResponseType.NotFound, $"{DuractionMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

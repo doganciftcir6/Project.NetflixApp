@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -39,9 +40,9 @@ namespace Project.NetflixApp.Business.Concrete
             if (data != null)
             {
                 await _productionCommentRepository.DeleteAsync(data);
-                return new Response(ResponseType.Success, "The productioncomment was successfully deleted");
+                return new Response(ResponseType.Success, ProductionCommentMessages.Deleted);
             }
-            return new Response(ResponseType.NotFound, "The productioncomment parameter could not be deleted because the productioncomment could not be found.");
+            return new Response(ResponseType.NotFound, ProductionCommentMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetProductionCommentDto>>> GetAllAsync()
@@ -126,7 +127,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetProductionCommentDto>(entityData);
                 return new DataResponse<GetProductionCommentDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetProductionCommentDto>(ResponseType.NotFound, $"The related productioncomment could not be found. Productioncomment Id:");
+            return new DataResponse<GetProductionCommentDto>(ResponseType.NotFound, $"{ProductionCommentMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IDataResponse<GetProductionCommentDto>> GetByIdWithRelationsAsync(int id)
@@ -138,7 +139,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetProductionCommentDto>(entityData);
                 return new DataResponse<GetProductionCommentDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetProductionCommentDto>(ResponseType.NotFound, $"The related productioncomment could not be found. Productioncomment Id:");
+            return new DataResponse<GetProductionCommentDto>(ResponseType.NotFound, $"{ProductionCommentMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IResponse> InsertAsync(CreateProductionCommentDto createProductionCommentDto)
@@ -148,7 +149,7 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 var mappingEntity = _mapper.Map<ProductionComment>(createProductionCommentDto);
                 await _productionCommentRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The productioncomment adding process has been successfully completed.");
+                return new Response(ResponseType.Success, ProductionCommentMessages.Created);
             }
             return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
@@ -164,11 +165,11 @@ namespace Project.NetflixApp.Business.Concrete
                     updateProductionCommentDto.CreateDate = oldData.CreateDate;
                     var mappingEntity = _mapper.Map<ProductionComment>(updateProductionCommentDto);
                     await _productionCommentRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The productioncomment updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, ProductionCommentMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related productioncomment could not be found. So the update process could not be completed. Productioncomment Id:");
+            return new Response(ResponseType.NotFound, $"{ProductionCommentMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

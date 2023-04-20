@@ -2,6 +2,7 @@
 using FluentValidation;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -36,9 +37,9 @@ namespace Project.NetflixApp.Business.Concrete
             if (data != null)
             {
                 await _categoryRepository.DeleteAsync(data);
-                return new Response(ResponseType.Success, "The category was successfully deleted");
+                return new Response(ResponseType.Success, CategoryMessages.SuccessfullyDelete);
             }
-            return new Response(ResponseType.NotFound, "The category parameter could not be deleted because the category could not be found.");
+            return new Response(ResponseType.NotFound, CategoryMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetCategoryDto>>> GetAllAsync()
@@ -56,7 +57,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetCategoryDto>(entity);
                 return new DataResponse<GetCategoryDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetCategoryDto>(ResponseType.NotFound, $"The related category could not be found. Category Id:");
+            return new DataResponse<GetCategoryDto>(ResponseType.NotFound, $"{CategoryMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IResponse> InsertAsync(CreateCategoryDto createCategoryDto)
@@ -66,7 +67,7 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 var mappingEntity = _mapper.Map<Category>(createCategoryDto);
                 await _categoryRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The category adding process has been successfully completed.");
+                return new Response(ResponseType.Success, CategoryMessages.Created);
             }
             return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
@@ -82,11 +83,11 @@ namespace Project.NetflixApp.Business.Concrete
                 {
                     var mappingEntity = _mapper.Map<Category>(updateCategoryDto);
                     await _categoryRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The category updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, CategoryMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related category could not be found. So the update process could not be completed. Category Id:");
+            return new Response(ResponseType.NotFound, $"{CategoryMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

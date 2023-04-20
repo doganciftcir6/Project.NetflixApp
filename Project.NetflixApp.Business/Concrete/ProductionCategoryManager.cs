@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -39,9 +40,9 @@ namespace Project.NetflixApp.Business.Concrete
             if (data != null)
             {
                 await _productionCategoryRepository.DeleteAsync(data);
-                return new Response(ResponseType.Success, "The productioncategory was successfully deleted");
+                return new Response(ResponseType.Success, ProductionCategoryMessages.Deleted);
             }
-            return new Response(ResponseType.NotFound, "The productioncategory parameter could not be deleted because the productioncategory could not be found.");
+            return new Response(ResponseType.NotFound, ProductionCategoryMessages.NotDeleted);
         }
 
         public async Task<IDataResponse<IEnumerable<GetProductionCategoryDto>>> GetAllAsync()
@@ -67,7 +68,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetProductionCategoryDto>(entityData);
                 return new DataResponse<GetProductionCategoryDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetProductionCategoryDto>(ResponseType.NotFound, $"The related productioncategory could not be found. Productioncategory Id:");
+            return new DataResponse<GetProductionCategoryDto>(ResponseType.NotFound, $"{ProductionCategoryMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IDataResponse<GetProductionCategoryDto>> GetByIdWithRelationsAsync(int id)
@@ -79,7 +80,7 @@ namespace Project.NetflixApp.Business.Concrete
                 var mappingDto = _mapper.Map<GetProductionCategoryDto>(entityData);
                 return new DataResponse<GetProductionCategoryDto>(ResponseType.Success, mappingDto);
             }
-            return new DataResponse<GetProductionCategoryDto>(ResponseType.NotFound, $"The related productioncategory could not be found. Productioncategory Id:");
+            return new DataResponse<GetProductionCategoryDto>(ResponseType.NotFound, $"{ProductionCategoryMessages.NotFound}" + $"{id}");
         }
 
         public async Task<IResponse> InsertAsync(CreateProductionCategoryDto createProductionCategoryDto)
@@ -89,7 +90,7 @@ namespace Project.NetflixApp.Business.Concrete
             {
                 var mappingEntity = _mapper.Map<ProductionCategory>(createProductionCategoryDto);
                 await _productionCategoryRepository.InsertAsync(mappingEntity);
-                return new Response(ResponseType.Success, "The productioncategory adding process has been successfully completed.");
+                return new Response(ResponseType.Success, ProductionCategoryMessages.Created);
             }
             return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
@@ -104,11 +105,11 @@ namespace Project.NetflixApp.Business.Concrete
                 {
                     var mappingEntity = _mapper.Map<ProductionCategory>(updateProductionCategoryDto);
                     await _productionCategoryRepository.UpdateAsync(mappingEntity);
-                    return new Response(ResponseType.Success, "The productioncategory updating process has been successfully completed.");
+                    return new Response(ResponseType.Success, ProductionCategoryMessages.Updated);
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
-            return new Response(ResponseType.NotFound, "The related productioncategory could not be found. So the update process could not be completed. Productioncategory Id:");
+            return new Response(ResponseType.NotFound, $"{ProductionCategoryMessages.NotUpdated}" + $"{oldData.Id}");
         }
     }
 }

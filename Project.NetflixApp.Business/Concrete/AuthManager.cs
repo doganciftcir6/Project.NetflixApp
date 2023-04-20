@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Business.Helpers;
+using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Business.Helpers.UserUploadHelpers;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Common.Utilities.ErrorsEngine;
@@ -53,10 +54,10 @@ namespace Project.NetflixApp.Business.Concrete
                         return new DataResponse<TokenResponseDto>(ResponseType.Success, token);
                     }
                     //şifre uymuyor
-                    return new DataResponse<TokenResponseDto>(ResponseType.Error, "Incorrect password entered.");
+                    return new DataResponse<TokenResponseDto>(ResponseType.Error, AuthMessages.WrongPassword);
                 }
                 //email uymuyor
-                return new DataResponse<TokenResponseDto>(ResponseType.Error, "Incorrect email entered");
+                return new DataResponse<TokenResponseDto>(ResponseType.Error, AuthMessages.WrongEmail);
             }
             return new DataResponse<TokenResponseDto>(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
         }
@@ -83,7 +84,7 @@ namespace Project.NetflixApp.Business.Concrete
                     }
 
                     await _userService.CreateUserAsync(registerUserDto, (int)RoleType.Member);
-                    return new Response(ResponseType.Success, "The user adding process has been successfully completed.");
+                    return new Response(ResponseType.Success, AuthMessages.CompletedRegister);
                 }
                 else
                 {
