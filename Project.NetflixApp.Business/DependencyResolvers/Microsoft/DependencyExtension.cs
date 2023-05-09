@@ -111,6 +111,7 @@ namespace Project.NetflixApp.Business.DependencyResolvers.Microsoft
             services.AddTransient<IValidator<UpdateUserDto>, UpdateUserValidator>();
             services.AddTransient<IValidator<LoginUserDto>, LoginUserValidator>();
             services.AddTransient<IValidator<RegisterUserDto>, RegisterUserValidator>();
+            services.AddTransient<IValidator<UserChangePasswordDto>, ChangePasswordValidator>();
 
             //automapper
             var mapperConfiguration = new MapperConfiguration(opt =>

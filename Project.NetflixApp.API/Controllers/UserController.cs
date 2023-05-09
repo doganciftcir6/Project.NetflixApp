@@ -50,6 +50,24 @@ namespace Project.NetflixApp.API.Controllers
             }
             return Ok(deleteResponse.Message);
         }
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ChangePasswordAsync(UserChangePasswordDto userChangePasswordDto)
+        {
+            var changePasswordResponse = await _userService.ChangePasswordAsync(userChangePasswordDto);
+            if (changePasswordResponse.ResponseType == ResponseType.Error)
+            {
+                return BadRequest(changePasswordResponse.Message);
+            }
+            else if (changePasswordResponse.ResponseType == ResponseType.NotFound)
+            {
+                return NotFound(changePasswordResponse.Message);
+            }
+            else if(changePasswordResponse.ResponseType == ResponseType.ValidationError)
+            {
+                return BadRequest(changePasswordResponse.CustomValidationErrors);
+            }
+            return Ok(changePasswordResponse.Message);
+        }
         [HttpPut("[action]")]
         public async Task<IActionResult> UpdateAsync([FromForm]UpdateUserDto updateUserDto, IFormFile image)
         {

@@ -33,9 +33,10 @@ namespace Project.NetflixApp.Business.Concrete
         private readonly IValidator<UpdateUserDto> _updateUserDtoValidator;
         private readonly IValidator<RegisterUserDto> _registerUserDtoValidator;
         private readonly IValidator<LoginUserDto> _loginUserDtoValidator;
+        private readonly IValidator<UserChangePasswordDto> _userChangePasswordDtoValidator;
         private readonly IHostingEnvironment _hostingEnvironment;
 
-        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator, IUserOperationClaimRepository userOperationClaimRepository, IHostingEnvironment hostingEnvironment)
+        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<CreateUserDto> createUserDtoValidator, IValidator<UpdateUserDto> updateUserDtoValidator, IValidator<RegisterUserDto> registerUserDtoValidator, IValidator<LoginUserDto> loginUserDtoValidator, IUserOperationClaimRepository userOperationClaimRepository, IHostingEnvironment hostingEnvironment, IValidator<UserChangePasswordDto> userChangePasswordDtoValidator)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -45,6 +46,7 @@ namespace Project.NetflixApp.Business.Concrete
             _loginUserDtoValidator = loginUserDtoValidator;
             _userOperationClaimRepository = userOperationClaimRepository;
             _hostingEnvironment = hostingEnvironment;
+            _userChangePasswordDtoValidator = userChangePasswordDtoValidator;
         }
 
         public async Task<IResponse> DeleteAsync(int id)
@@ -196,6 +198,33 @@ namespace Project.NetflixApp.Business.Concrete
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
             return new Response(ResponseType.NotFound, $"{UserMessages.NotUpdated}" + $"{oldData.Id}");
+        }
+
+        public async Task<IResponse> ChangePasswordAsync(UserChangePasswordDto userChangePasswordDto)
+        {
+            //eski şifre kontrolü;
+            var user = await _userRepository.AsNoTrackingGetByFilterAsync(x => x.Id == userChangePasswordDto.UserId);
+            if (user != null)
+            {
+                IResponse result = HashingHelper.VerifyPasswordHash(userChangePasswordDto.CurrentPassword, user.PasswordHash, user.PasswordSalt);
+                if (result.ResponseType != ResponseType.Success)
+                {
+                    return new Response(ResponseType.Error, UserMessages.WrongCurrentPassword);
+                }
+                //yeni şifre için;
+                var validationResponse = _userChangePasswordDtoValidator.Validate(userChangePasswordDto);
+                if (validationResponse.IsValid)
+                {
+                    byte[] passwordHash, passwordSalt;
+                    HashingHelper.CreatePassword(userChangePasswordDto.NewPassword, out passwordHash, out passwordSalt);
+                    user.PasswordHash = passwordHash;
+                    user.PasswordSalt = passwordSalt;
+                    await _userRepository.UpdateAsync(user);
+                    return new Response(ResponseType.Success, UserMessages.PasswordChanged);
+                }
+                return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
+            }
+            return new Response(ResponseType.NotFound, $"{UserMessages.NotFound}" + $"{userChangePasswordDto.UserId}");
         }
     }
 }

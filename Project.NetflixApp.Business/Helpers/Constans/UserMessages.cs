@@ -19,5 +19,7 @@ namespace Project.NetflixApp.Business.Helpers.Constans
         public static string NotCheckImageName = "The name of the image you have uploaded cannot contain the characters /, <, >, %2F, %5C^";
         public static string NotCheckImageNameDot = "The name of the image you have uploaded cannot contain the character '.'^";
         public static string AlreadyUsedEmail = "This email address has already been used. Please use a different email address^";
+        public static string WrongCurrentPassword = "You have entered your current password incorrectly^";
+        public static string PasswordChanged = "Your password has been successfully changed^";
     }
 }
