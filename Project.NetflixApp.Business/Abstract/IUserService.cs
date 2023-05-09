@@ -1,4 +1,5 @@
-﻿using Project.NetflixApp.Common.Utilities.Results.Abstract;
+﻿using Microsoft.AspNetCore.Http;
+using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Dtos.UserDtos;
 using Project.NetflixApp.Entities;
 using System;
@@ -12,7 +13,7 @@ namespace Project.NetflixApp.Business.Abstract
     public interface IUserService
     {
         Task CreateUserAsync(RegisterUserDto registerUserDto, int roleId);
-        Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto);
+        Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto, IFormFile image);
         Task<IResponse> DeleteAsync(int id);
         Task<IDataResponse<IEnumerable<GetUserWithoutPasswordDto>>> GetAllAsync();
         Task<IDataResponse<IEnumerable<GetUserWithoutPasswordDto>>> GetAllWithGenderAsync();

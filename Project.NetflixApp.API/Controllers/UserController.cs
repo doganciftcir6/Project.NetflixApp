@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Common.Enums;
 using Project.NetflixApp.Dtos.UserDtos;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Project.NetflixApp.API.Controllers
@@ -50,12 +51,19 @@ namespace Project.NetflixApp.API.Controllers
             return Ok(deleteResponse.Message);
         }
         [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateAsync(UpdateUserDto updateUserDto)
+        public async Task<IActionResult> UpdateAsync([FromForm]UpdateUserDto updateUserDto, IFormFile image)
         {
-            var updateResponse = await _userService.UpdateAsync(updateUserDto);
+            var updateResponse = await _userService.UpdateAsync(updateUserDto, image);
             if(updateResponse.ResponseType == ResponseType.NotFound)
             {
                 return NotFound(updateResponse.Message);
+            }
+            else if(updateResponse.ResponseType == ResponseType.Error)
+            {
+                //hata mesajları birleşik geliyor onları birbirinden ayıralım. ^ ifadesi silinip sonrası ayrıalcaktır.
+                //mesajların sonunda ek boş bir mesaj geliyordu ondanda where sorgusuyla kurtulalım bu noktada.
+                var errorMessages = updateResponse.Message.Split('^').Where(x => !string.IsNullOrEmpty(x));
+                return BadRequest(errorMessages);
             }
             else if(updateResponse.ResponseType == ResponseType.ValidationError)
             {

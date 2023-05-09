@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Project.NetflixApp.Business.Abstract;
 using Project.NetflixApp.Business.Extensions;
 using Project.NetflixApp.Business.Helpers.Constans;
 using Project.NetflixApp.Business.Helpers.UserUploadHelpers;
 using Project.NetflixApp.Common.Enums;
+using Project.NetflixApp.Common.Utilities.ErrorsEngine;
 using Project.NetflixApp.Common.Utilities.Hashing;
 using Project.NetflixApp.Common.Utilities.Results.Abstract;
 using Project.NetflixApp.Common.Utilities.Results.Concrete;
@@ -152,17 +154,44 @@ namespace Project.NetflixApp.Business.Concrete
             });
         }
 
-        public async Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto)
+        public async Task<IResponse> UpdateAsync(UpdateUserDto updateUserDto, IFormFile image)
         {
+            //update işlemi sırasında kullanıcı şifrelerle ilgilenmeyecek.
             var oldData = await _userRepository.AsNoTrackingGetByFilterAsync(x => x.Id == updateUserDto.Id);
             if (oldData != null)
             {
                 var validationResponse = _updateUserDtoValidator.Validate(updateUserDto);
                 if (validationResponse.IsValid)
                 {
+                    if (image != null)
+                    {
+                        //upload işlemleri
+                        IResponse uploadCheck = ErrorsEngineHelper.Run
+                        (
+                             UserUploadSecurityHelper.CheckIfImageExtensionsAllow(image.FileName),
+                             UserUploadSecurityHelper.CheckImageNameDot(image),
+                             UserUploadSecurityHelper.CheckImageName(image.FileName),
+                             UserUploadSecurityHelper.CheckIfImageSizeIsLessThanOneMb(image.Length)
+                        );
+                        if (uploadCheck.ResponseType == ResponseType.Success)
+                        {
+                            //upload
+                            await UploadUserHelper.CreateInstance(_hostingEnvironment).Upload(image);
+                            var createSqlName = Path.GetFileNameWithoutExtension(image.FileName) + DateTime.UtcNow.Minute + DateTime.UtcNow.Second + Path.GetExtension(image.FileName);
+                            oldData.ImageUrl = createSqlName;
+                        }
+                        else
+                        {
+                            return uploadCheck;
+                        }
+                    }
                     var mappingEntity = _mapper.Map<User>(updateUserDto);
+                    mappingEntity.ImageUrl = oldData.ImageUrl;
+                    mappingEntity.PasswordSalt = oldData.PasswordSalt;
+                    mappingEntity.PasswordHash = oldData.PasswordHash;
                     await _userRepository.UpdateAsync(mappingEntity);
                     return new Response(ResponseType.Success, UserMessages.Updated);
+
                 }
                 return new Response(ResponseType.ValidationError, validationResponse.ConvertToCustomValidationError());
             }
