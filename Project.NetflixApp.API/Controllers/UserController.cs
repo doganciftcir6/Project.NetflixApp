@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace Project.NetflixApp.API.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -19,7 +18,7 @@ namespace Project.NetflixApp.API.Controllers
         {
             _userService = userService;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("[action]")]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -30,6 +29,7 @@ namespace Project.NetflixApp.API.Controllers
             }
             return BadRequest();
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("[action]/{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
@@ -40,6 +40,7 @@ namespace Project.NetflixApp.API.Controllers
             }
             return Ok(userResponse.Data);
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("[action]/{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
@@ -50,6 +51,7 @@ namespace Project.NetflixApp.API.Controllers
             }
             return Ok(deleteResponse.Message);
         }
+        [Authorize(Roles = "Admin,Member")]
         [HttpPost("[action]")]
         public async Task<IActionResult> ChangePasswordAsync(UserChangePasswordDto userChangePasswordDto)
         {
@@ -68,6 +70,7 @@ namespace Project.NetflixApp.API.Controllers
             }
             return Ok(changePasswordResponse.Message);
         }
+        [Authorize(Roles = "Admin,Member")]
         [HttpPut("[action]")]
         public async Task<IActionResult> UpdateAsync([FromForm]UpdateUserDto updateUserDto, IFormFile image)
         {
